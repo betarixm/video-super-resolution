@@ -1,4 +1,4 @@
-Term Project Title
+Video Upscaling
 ===
 `한국인`
 |Name|ID|Dept.|
