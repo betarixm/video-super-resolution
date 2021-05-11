@@ -77,7 +77,6 @@ dynamic upsampling filter만을 적용시킨 결과는 sharpness에서 lack을 �
 - Flask
 
 # Milestones
-<!-- 권민재 -->
 ### Proposal
 - `5/11` Proposal draft submission
 - `5/13` Proposal feedback
