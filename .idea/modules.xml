@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/CSED451-PROJECT.iml" filepath="$PROJECT_DIR$/.idea/CSED451-PROJECT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/video-super-resolution.iml" filepath="$PROJECT_DIR$/.idea/video-super-resolution.iml" />
     </modules>
   </component>
 </project>
