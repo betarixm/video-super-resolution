@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 from PIL import Image
 import numpy as np
 import tensorflow as tf
@@ -120,4 +121,20 @@ def depth_to_space_3d(x: torch.Tensor, block_size):
     y = torch.pixel_shuffle(x, block_size)  # Check that input is NCHW format
     ds_y = y.shape
     return torch.reshape(y, [ds_x[0], ds_x[1], ds_y[1], ds_y[2], ds_y[3]])
+
+
+class DynFilter3D(torch.nn.Module):
+    def __init__(self):
+        super(DynFilter3D, self).__init__()
+
+    def forward(self, x, f, filter_size):
+        filter_localexpand_np = np.reshape(np.eye(np.prod(filter_size), np.prod(filter_size)), (filter_size[1], filter_size[2], filter_size[0], np.prod(filter_size)))
+        filter_localexpand = torch.tensor(filter_localexpand_np)
+        x = x.permute(0, 2, 3, 1)
+        x_localexpand = F.conv2d(x, filter_localexpand, padding=1, stride=1)
+        x_localexpand = torch.unsqueeze(x_localexpand, 3)
+        x = torch.matmul(x_localexpand, f)
+        return torch.squeeze(x, 3)
+
+# function Huber is not used
 
