@@ -73,7 +73,7 @@ def rgb_to_ycbcr(img, max_val=255):
     return ycbcr
 
 
-def to_unit8(x: np.array, _min, _max):
+def to_uint8(x: np.array, _min, _max):
     x = x.astype('float32')
     x = (x - _min) / (_max - _min) * 255
     return np.clip(np.round(x), 0, 255)
