@@ -109,3 +109,15 @@ def avg_psnr(vid_true, vid_pred, _min=0, _max=255, t_border=2, sp_border=8, is_t
 def batch_norm(i, is_train, decay=0.999, name='BatchNorm'):
     raise Exception("Use torch.BatchNorm")
 
+# TODO: Conv3D compat
+
+# TODO: Use torch.load(PATH) instead of LoadParams
+
+
+def depth_to_space_3d(x: torch.Tensor, block_size):
+    ds_x = x.shape
+    x = torch.reshape(x, [ds_x[0] * ds_x[1], ds_x[2], ds_x[3], ds_x[4]])
+    y = torch.pixel_shuffle(x, block_size)  # Check that input is NCHW format
+    ds_y = y.shape
+    return torch.reshape(y, [ds_x[0], ds_x[1], ds_y[1], ds_y[2], ds_y[3]])
+
