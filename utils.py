@@ -2,7 +2,6 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 import numpy as np
-import tensorflow as tf
 
 
 def load_image(path, channel_mean=None, mod_crop=None):
@@ -25,13 +24,12 @@ def load_image(path, channel_mean=None, mod_crop=None):
     return x
 
 
-def down_sample(x, h, scale=4):
-    # TODO: Modify Logic to Use Pytorch
-    ds_x = tf.shape(x)
-    x = tf.reshape(x, [ds_x[0]*ds_x[1], ds_x[2], ds_x[3], 3])
+def down_sample(x: torch.Tensor, h, scale=4):
+    ds_x = x.shape
+    x = torch.reshape(x, [ds_x[0]*ds_x[1], ds_x[2], ds_x[3], 3])
 
     # Reflect padding
-    w = tf.constant(h)
+    w = torch.Tensor(h)
 
     filter_height, filter_width = 13, 13
     pad_height = filter_height - 1
@@ -43,13 +41,13 @@ def down_sample(x, h, scale=4):
     pad_bottom = pad_height - pad_top
     pad_left = pad_width // 2
     pad_right = pad_width - pad_left
-    pad_array = [[0,0], [pad_top, pad_bottom], [pad_left, pad_right], [0,0]]
+    pad_array = (0, 0, pad_left, pad_right, pad_top, pad_bottom, 0, 0)
 
-    depthwise_f = tf.tile(w, [1, 1, 3, 1])
-    y = tf.nn.depthwise_conv2d(tf.pad(x, pad_array, mode='REFLECT'), depthwise_f, [1, scale, scale, 1], 'VALID')
+    depthwise_f = torch.tile(w, [1, 1, 3, 1])
+    y = F.conv2d(F.pad(x, pad_array, mode='reflect'), depthwise_f, stride=scale)
 
-    ds_y = tf.shape(y)
-    y = tf.reshape(y, [ds_x[0], ds_x[1], ds_y[1], ds_y[2], 3])
+    ds_y = y.shape
+    y = torch.reshape(y, [ds_x[0], ds_x[1], ds_y[1], ds_y[2], 3])
     return torch.from_numpy(y.numpy())
 
 
