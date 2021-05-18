@@ -77,3 +77,30 @@ def to_uint8(x: np.array, _min, _max):
     x = x.astype('float32')
     x = (x - _min) / (_max - _min) * 255
     return np.clip(np.round(x), 0, 255)
+
+
+def avg_psnr(vid_true, vid_pred, _min=0, _max=255, t_border=2, sp_border=8, is_t_y=False, is_p_y=False):
+    input_shape = vid_pred.shape
+    if is_t_y:
+        y_true = to_uint8(vid_true, _min, _max)
+    else:
+        y_true = np.empty(input_shape[:-1])
+        for t in range(input_shape[0]):
+            y_true[t] = rgb_to_ycbcr(to_uint8(vid_true[t], _min, _max), 255)[:, :, 0]
+
+    if is_p_y:
+        y_pred = to_uint8(vid_pred, _min, _max)
+    else:
+        y_pred = np.empty(input_shape[:-1])
+        for t in range(input_shape[0]):
+            y_pred[t] = rgb_to_ycbcr(to_uint8(vid_pred[t], _min, _max), 255)[:, :, 0]
+
+    diff = y_true - y_pred
+    diff = diff[t_border: input_shape[0]- t_border, sp_border: input_shape[1]- sp_border, sp_border: input_shape[2]- sp_border]
+
+    psnrs = []
+    for t in range(diff.shape[0]):
+        rmse = np.sqrt(np.mean(np.power(diff[t],2)))
+        psnrs.append(20*np.log10(255./rmse))
+
+    return np.mean(np.asarray(psnrs))
