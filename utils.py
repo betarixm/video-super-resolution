@@ -104,3 +104,8 @@ def avg_psnr(vid_true, vid_pred, _min=0, _max=255, t_border=2, sp_border=8, is_t
         psnrs.append(20*np.log10(255./rmse))
 
     return np.mean(np.asarray(psnrs))
+
+
+def batch_norm(i, is_train, decay=0.999, name='BatchNorm'):
+    raise Exception("Use torch.BatchNorm")
+
