@@ -108,7 +108,10 @@ def avg_psnr(vid_true, vid_pred, _min=0, _max=255, t_border=2, sp_border=8, is_t
 def batch_norm(i, is_train, decay=0.999, name='BatchNorm'):
     raise Exception("Use torch.BatchNorm1d")
 
-# TODO: Conv3D compat
+
+def Conv3D(i, kernel_shape, strides, padding, name='Conv3d', W_initializer=None, bias=True):
+    return torch.nn.Conv3d(3, 3, kernel_size=kernel_shape, stride=strides, padding=padding, bias=bias)(i)
+
 
 # TODO: Use torch.load(PATH) instead of LoadParams
 
