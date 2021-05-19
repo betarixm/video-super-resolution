@@ -48,7 +48,7 @@ def down_sample(x: torch.Tensor, h, scale=4):
 
     ds_y = y.shape
     y = torch.reshape(y, [ds_x[0], ds_x[1], ds_y[1], ds_y[2], 3])
-    return torch.from_numpy(y.numpy())
+    return y
 
 
 def rgb_to_ycbcr(img, max_val=255):
@@ -106,7 +106,7 @@ def avg_psnr(vid_true, vid_pred, _min=0, _max=255, t_border=2, sp_border=8, is_t
 
 
 def batch_norm(i, is_train, decay=0.999, name='BatchNorm'):
-    raise Exception("Use torch.BatchNorm")
+    raise Exception("Use torch.BatchNorm1d")
 
 # TODO: Conv3D compat
 
@@ -128,7 +128,7 @@ class DynFilter3D(torch.nn.Module):
     def forward(self, x, f, filter_size):
         filter_localexpand_np = np.reshape(np.eye(np.prod(filter_size), np.prod(filter_size)), (filter_size[1], filter_size[2], filter_size[0], np.prod(filter_size)))
         filter_localexpand = torch.tensor(filter_localexpand_np)
-        x = x.permute(0, 2, 3, 1)
+        x = x.permute(0, 2, 3, 1)  # TODO: Check NCHW
         x_localexpand = F.conv2d(x, filter_localexpand, padding=1, stride=1)
         x_localexpand = torch.unsqueeze(x_localexpand, 3)
         x = torch.matmul(x_localexpand, f)
