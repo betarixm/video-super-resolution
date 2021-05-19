@@ -122,16 +122,18 @@ def depth_to_space_3d(x: torch.Tensor, block_size):
 
 
 class DynFilter3D(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, f, filter_size):
         super(DynFilter3D, self).__init__()
+        self.f = f
+        self.filter_size = filter_size
 
-    def forward(self, x, f, filter_size):
-        filter_localexpand_np = np.reshape(np.eye(np.prod(filter_size), np.prod(filter_size)), (filter_size[1], filter_size[2], filter_size[0], np.prod(filter_size)))
+    def forward(self, x):
+        filter_localexpand_np = np.reshape(np.eye(np.prod(self.filter_size), np.prod(self.filter_size)), (self.filter_size[1], self.filter_size[2], self.filter_size[0], np.prod(self.filter_size)))
         filter_localexpand = torch.tensor(filter_localexpand_np)
         x = x.permute(0, 2, 3, 1)  # TODO: Check NCHW
         x_localexpand = F.conv2d(x, filter_localexpand, padding=1, stride=1)
         x_localexpand = torch.unsqueeze(x_localexpand, 3)
-        x = torch.matmul(x_localexpand, f)
+        x = torch.matmul(x_localexpand, self.f)
         return torch.squeeze(x, 3)
 
 # function Huber is not used
