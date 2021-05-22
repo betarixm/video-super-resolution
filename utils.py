@@ -107,14 +107,14 @@ def avg_psnr(vid_true, vid_pred, _min=0, _max=255, t_border=2, sp_border=8, is_t
     else:
         y_true = np.empty(input_shape[:-1])
         for t in range(input_shape[0]):
-            y_true[t] = rgb_to_ycbcr(to_uint8(vid_true[t], _min, _max), 255)[:, :, 0]
+            y_true[t] = _rgb2ycbcr(to_uint8(vid_true[t], _min, _max), 255)[:, :, 0]
 
     if is_p_y:
         y_pred = to_uint8(vid_pred, _min, _max)
     else:
         y_pred = np.empty(input_shape[:-1])
         for t in range(input_shape[0]):
-            y_pred[t] = rgb_to_ycbcr(to_uint8(vid_pred[t], _min, _max), 255)[:, :, 0]
+            y_pred[t] = _rgb2ycbcr(to_uint8(vid_pred[t], _min, _max), 255)[:, :, 0]
 
     diff = y_true - y_pred
     diff = diff[t_border: input_shape[0]- t_border, sp_border: input_shape[1]- sp_border, sp_border: input_shape[2]- sp_border]
