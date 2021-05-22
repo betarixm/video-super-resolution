@@ -213,5 +213,16 @@ def DynFilter3D(x, f, filter_size):
 
     return x
 
-# function Huber is not used
+
+def Huber(y_true, y_pred, delta, axis=None):
+    abs_error = tf.abs(y_pred - y_true)
+    quadratic = tf.minimum(abs_error, delta)
+    # The following expression is the same in value as
+    # tf.maximum(abs_error - delta, 0), but importantly the gradient for the
+    # expression when abs_error == delta is 0 (for tf.maximum it would be 1).
+    # This is necessary to avoid doubling the gradient, since there is already a
+    # nonzero contribution to the gradient from the quadratic term.
+    linear = (abs_error - quadratic)
+    losses = 0.5 * quadratic**2 + delta * linear
+    return tf.reduce_mean(losses, axis=axis)
 
