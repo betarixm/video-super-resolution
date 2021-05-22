@@ -1,17 +1,37 @@
+#!/usr/bin/env python
+
+# https://github.com/yhjo09/VSR-DUF/blob/master/utils.py
 import torch
 import torch.nn.functional as F
 from PIL import Image
 import numpy as np
 
 
-def load_image(path, channel_mean=None, mod_crop=None):
+def LoadImage(path, color_mode='RGB', channel_mean=None, mod_crop=None):
+    """
+    Load an image using PIL and convert it into specified color space,
+    and return it as an numpy array.
+    https://github.com/fchollet/keras/blob/master/keras/preprocessing/image.py
+    The code is modified from Keras.preprocessing.image.load_img, img_to_array.
+    """
+
     if mod_crop is None:
         mod_crop = [0, 0, 0, 0]
 
     img = Image.open(path)
-    cimg = img.convert('RGB')
-    x = np.asarray(cimg, dtype='float32')
-    x *= 1.0/255.0
+    if color_mode == 'RGB':
+        cimg = img.convert('RGB')
+        x = np.asarray(cimg, dtype='float32')
+    elif color_mode == 'YCbCr' or color_mode == 'Y':
+        cimg = img.convert('YCbCr')
+        x = np.asarray(cimg, dtype='float32')
+        if color_mode == 'Y':
+            x = x[:, :, 0:1]
+    else:
+        raise Exception(f"{color_mode} is not supported.")
+
+    # To 0-1
+    x *= 1.0 / 255.0
 
     if channel_mean:
         x[:, :, 0] -= channel_mean[0]
