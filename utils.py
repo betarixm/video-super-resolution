@@ -195,20 +195,23 @@ def depth_to_space_3D(x, block_size):
     return x
 
 
-class DynFilter3D(torch.nn.Module):
-    def __init__(self, f, filter_size):
-        super(DynFilter3D, self).__init__()
-        self.f = f
-        self.filter_size = filter_size
+def DynFilter3D(x, f, filter_size):
+    """
+    3D Dynamic filtering
+    input x: (b, t, h, w)
+          F: (b, h, w, tower_depth, output_depth)
+          filter_shape (ft, fh, fw)
+    """
+    # make tower
+    filter_local_expand_np = np.reshape(np.eye(np.prod(filter_size), np.prod(filter_size)), (filter_size[1], filter_size[2], filter_size[0], np.prod(filter_size)))
+    filter_local_expand = tf.Variable(filter_local_expand_np, trainable=False, dtype='float32', name='filter_localexpand')
+    x = tf.transpose(x, perm=[0, 2, 3, 1])
+    x_local_expand = tf.nn.conv2d(x, filter_local_expand, [1, 1, 1, 1], 'SAME')  # b, h, w, 1*5*5
+    x_local_expand = tf.expand_dims(x_local_expand, axis=3)  # b, h, w, 1, 1*5*5
+    x = tf.matmul(x_local_expand, f)  # b, h, w, 1, R*R
+    x = tf.squeeze(x, axis=3)  # b, h, w, R*R
 
-    def forward(self, x):
-        filter_localexpand_np = np.reshape(np.eye(np.prod(self.filter_size), np.prod(self.filter_size)), (self.filter_size[1], self.filter_size[2], self.filter_size[0], np.prod(self.filter_size)))
-        filter_localexpand = torch.tensor(filter_localexpand_np)
-        x = x.permute(0, 2, 3, 1)  # TODO: Check NCHW
-        x_localexpand = F.conv2d(x, filter_localexpand, padding=1, stride=1)
-        x_localexpand = torch.unsqueeze(x_localexpand, 3)
-        x = torch.matmul(x_localexpand, self.f)
-        return torch.squeeze(x, 3)
+    return x
 
 # function Huber is not used
 
