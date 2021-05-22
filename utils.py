@@ -73,7 +73,7 @@ def DownSample(x, h, scale=4):
     return y
 
 
-def rgb_to_ycbcr(img, max_val=255):
+def _rgb2ycbcr(img, max_val=255):
     O = np.array([[16],
                   [128],
                   [128]])
