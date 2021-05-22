@@ -184,12 +184,15 @@ def LoadParams(sess, params, in_file='params.hdf5'):
     raise Exception("Use keras.models.load_model")
 
 
-def depth_to_space_3d(x: torch.Tensor, block_size):
-    ds_x = x.shape
-    x = torch.reshape(x, [ds_x[0] * ds_x[1], ds_x[2], ds_x[3], ds_x[4]])
-    y = torch.pixel_shuffle(x, block_size)  # Check that input is NCHW format
-    ds_y = y.shape
-    return torch.reshape(y, [ds_x[0], ds_x[1], ds_y[1], ds_y[2], ds_y[3]])
+def depth_to_space_3D(x, block_size):
+    ds_x = tf.shape(x)
+    x = tf.reshape(x, [ds_x[0]*ds_x[1], ds_x[2], ds_x[3], ds_x[4]])
+
+    y = tf.nn.depth_to_space(x, block_size)
+
+    ds_y = tf.shape(y)
+    x = tf.reshape(y, [ds_x[0], ds_x[1], ds_y[1], ds_y[2], ds_y[3]])
+    return x
 
 
 class DynFilter3D(torch.nn.Module):
