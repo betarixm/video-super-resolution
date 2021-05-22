@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import tensorflow as tf
 from PIL import Image
 import numpy as np
+import h5py
 
 
 def LoadImage(path, color_mode='RGB', channel_mean=None, mod_crop=None):
@@ -179,7 +180,8 @@ def Conv3D(x, kernel_shape, strides, padding, name='Conv3d', w_initializer=tf.ke
     return tf.nn.conv3d(x, W, strides, padding) + b
 
 
-# TODO: Use torch.load(PATH) instead of LoadParams
+def LoadParams(sess, params, in_file='params.hdf5'):
+    raise Exception("Use keras.models.load_model")
 
 
 def depth_to_space_3d(x: torch.Tensor, block_size):
