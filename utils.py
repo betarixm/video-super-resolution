@@ -168,8 +168,15 @@ def BatchNorm(x, is_train, decay=0.999, name='BatchNorm'):
     return tf.nn.batch_normalization(x, mean, variance, beta, gamma, 1e-3) #, tf.stack([mean[0], variance[0], beta[0], gamma[0]])
 
 
-def Conv3D(i, kernel_shape, strides, padding, name='Conv3d', W_initializer=None, bias=True):
-    return torch.nn.Conv3d(3, 3, kernel_size=kernel_shape, stride=strides, padding=padding, bias=bias)(i)
+def Conv3D(x, kernel_shape, strides, padding, name='Conv3d', w_initializer=tf.keras.initializers.HeNormal(), bias=True):
+    with tf.compat.v1.variable_scope(name):
+        W = tf.compat.v1.get_variable("W", kernel_shape, initializer=w_initializer)
+        if bias is True:
+            b = tf.compat.v1.get_variable("b", (kernel_shape[-1]),initializer=tf.constant_initializer(value=0.0))
+        else:
+            b = 0
+
+    return tf.nn.conv3d(x, W, strides, padding) + b
 
 
 # TODO: Use torch.load(PATH) instead of LoadParams
