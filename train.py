@@ -2,9 +2,9 @@
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
+import glob
 
 from utils import *
-from nets import *
 
 
 class OurModel(keras.Model):
@@ -93,13 +93,31 @@ class OurModel(keras.Model):
 
 
 def train_and_evaluate():
-    pass
+    X_train = []
+    y_train = []
+
+    dir_inputs_X = glob.glob('./test/test_LR/*')
+    dir_inputs_X.sort()
+    dir_inputs_y = glob.glob('./test/test_HR/*')
+    dir_inputs_y.sort()
+
+    for v in dir_inputs_X:
+        X_train.append(LoadImage(v))
+    for v in dir_inputs_y:
+        y_train.append(LoadImage(v))
+
+    X_train = np.array(X_train)
+    y_train = np.array(y_train)
+    X_train = X_train[np.newaxis, :, :, :, :]
+    y_train = y_train[np.newaxis, :, :, :, :]
+
+    model = OurModel()
+    model.compile(optimizer=keras.optimizers.Adam(), loss=keras.losses.Huber())
+    model.fit(X_train, y_train)
+    model.summary()
 
 
 if __name__ == "__main__":
-    model = OurModel()
-    model.build(input_shape=[1,7,32,32,3])
-    model.summary()
-
+    train_and_evaluate()
 
 

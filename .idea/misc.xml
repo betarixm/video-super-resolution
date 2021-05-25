@@ -5,7 +5,5 @@
       <executable />
     </execution>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_16" project-jdk-name="Python 3.9 (video-super-resolution)" project-jdk-type="Python SDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.7 (2021 graphics term project)" project-jdk-type="Python SDK" />
 </project>
