@@ -3,11 +3,8 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import glob
-from PIL import Image
-from matplotlib import cm
 
 from utils import *
-from nets import *
 
 
 class FR_16(keras.layers.Layer):
@@ -85,7 +82,7 @@ class FR_16(keras.layers.Layer):
 
             x = tf.concat([x[:, 1:-1], t], 4)
 
-        x = keras.layers.BatchNormalization()(x)
+        x = self.fbn(x)
         x = keras.layers.Activation("relu")(x)
         x = self.conv2(tf.pad(x, sp, mode='CONSTANT'))
         x = tf.nn.relu(x)
