@@ -218,7 +218,7 @@ def train_and_evaluate():
     y_train = np.asarray(y_train)
 
     model = OurModel()
-    model.compile(optimizer=keras.optimizers.Adam(), loss=keras.losses.Huber(delta=0.01))
+    model.compile(optimizer=keras.optimizers.Adam(), lㄴoss=keras.losses.Huber(delta=0.01))
     history = model.fit(X_train, y_train, epochs = 1)
     model.save("./FR_16(4)", save_format="tf")
 
