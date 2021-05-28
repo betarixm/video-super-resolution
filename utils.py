@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 # https://github.com/yhjo09/VSR-DUF/blob/master/utils.py
-import torch
-import torch.nn.functional as F
 import tensorflow as tf
 from PIL import Image
 import numpy as np

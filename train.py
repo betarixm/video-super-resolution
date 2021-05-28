@@ -191,6 +191,8 @@ def train_and_evaluate():
         dir_inputs_y.append(glob.glob(dir + '/*'))
     for dir in dir_inputs_X:
         dir.sort()
+    for dir in dir_inputs_y:
+        dir.sort()
 
     dir_files_X = []
     dir_files_y = []
