@@ -4,34 +4,58 @@ from PIL import Image
 import glob
 import os
 
-from utils import LoadImage
+from utils import LoadImage, depth_to_space_3D
+from nets import FR_16, DynFilter
 
 if __name__ == "__main__":
     X_train = []
     y_train = []
 
     dir_names_X = glob.glob('./input/LR/*')
+    dir_names_y = glob.glob('./input/HR/*')
     dir_inputs_X = []
     dir_inputs_y = []
     for dir in dir_names_X:
         dir_inputs_X.append(glob.glob(dir + '/*'))
+    for dir in dir_names_y:
+        dir_inputs_y.append(glob.glob(dir + '/*'))
     for dir in dir_inputs_X:
+        dir.sort()
+    for dir in dir_inputs_y:
         dir.sort()
 
     dir_files_X = []
+    dir_files_y = []
     for dir in dir_inputs_X:
         temp_dir_X = []
         for file in dir:
             temp_dir_X.append(LoadImage(file))
         dir_files_X.append(temp_dir_X)
+    for dir in dir_inputs_y:
+        temp_dir_y = []
+        for file in dir:
+            temp_dir_y.append(LoadImage(file))
+        dir_files_y.append(temp_dir_y)
 
     for dir in dir_files_X:
         for i in range(len(dir) - 6):
             X_train.append(dir[i:i + 7])
+    for dir in dir_files_y:
+        for i in range(len(dir) - 6):
+            y_train.append(dir[i + 3])
 
     X_train = np.asarray(X_train)
+    y_train = np.asarray(y_train)
 
-    model = keras.models.load_model("./FR_16(4)")
+    model = keras.models.load_model(
+        "./FR_16_4",
+        custom_objects={
+            "FR_16": FR_16,
+            "DynFilter": DynFilter,
+            "depth_to_space_3D": depth_to_space_3D
+        }
+    )
+    model.evaluate(X_train, y_train)
     result = model.predict(X_train)
 
     i = 0
