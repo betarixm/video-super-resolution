@@ -1,4 +1,5 @@
 from tensorflow import keras
+from keras.preprocessing.image import array_to_img
 import numpy as np
 from PIL import Image
 import glob
@@ -65,5 +66,8 @@ if __name__ == "__main__":
         os.mkdir(path_to_dir)
         for file_index in range(len(dir) - 6):
             path_to_save = os.path.join(path_to_dir, str(file_index+3) + ".png")
-            Image.fromarray(np.uint8(np.around(result[i][0] * 255))).save(path_to_save)
+            #img = array_to_img(result[i][0])
+            #img = Image.fromarray(np.uint8(np.around(result[i][0])))
+            img = Image.fromarray(np.around(result[i][0]*255).astype(np.uint8))
+            img.save(path_to_save)
             i += 1
