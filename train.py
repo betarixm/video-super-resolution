@@ -8,7 +8,7 @@ from nets import OurModel
 checkpoint_path = "checkpoint/FR_16_4.{epoch:03d}-{val_loss:.2f}"
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
-    save_best_only=True,
+    save_weights_only=True,
     verbose=1
 )
 
