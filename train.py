@@ -47,18 +47,20 @@ def load_data(train_ratio=0.75):
 
 
 def train_and_evaluate():
+    strategy = tf.distribute.MirroredStrategy()
     (X_train, y_train), (X_valid, y_valid) = load_data()
-    model = OurModel()
-    model.compile(optimizer=tf.keras.optimizers.Adam(), loss=tf.keras.losses.Huber(delta=0.01))
-    history = model.fit(
-        X_train,
-        y_train,
-        batch_size=16,
-        epochs=128,
-        validation_data=(X_valid, y_valid),
-        callbacks=[checkpoint_callback]
-    )
-    model.save("./FR_16_4", save_format="tf")
+    with strategy.scope():
+        model = OurModel()
+        model.compile(optimizer=tf.keras.optimizers.Adam(), loss=tf.keras.losses.Huber(delta=0.01))
+        history = model.fit(
+            X_train,
+            y_train,
+            batch_size=16,
+            epochs=128,
+            validation_data=(X_valid, y_valid),
+            callbacks=[checkpoint_callback]
+        )
+        model.save("./FR_16_4", save_format="tf")
 
 
 if __name__ == "__main__":
