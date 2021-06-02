@@ -1,5 +1,3 @@
-## -*- coding: utf-8 -*-
-import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import glob
@@ -7,56 +5,41 @@ import glob
 from utils import LoadImage
 from nets import OurModel
 
-def load_data():
-    X_train = []
+
+def load_data(train_ratio=0.75):
+    x_train = []
     y_train = []
 
-    dir_names_X = glob.glob('./input/LR/*')
+    dir_names_x = glob.glob('./input/LR/*')
     dir_names_y = glob.glob('./input/HR/*')
-    dir_inputs_X = []
-    dir_inputs_y = []
-    for dir in dir_names_X:
-        dir_inputs_X.append(glob.glob(dir + '/*'))
-    for dir in dir_names_y:
-        dir_inputs_y.append(glob.glob(dir + '/*'))
-    for dir in dir_inputs_X:
-        dir.sort()
-    for dir in dir_inputs_y:
-        dir.sort()
 
-    dir_files_X = []
-    dir_files_y = []
-    for dir in dir_inputs_X:
-        temp_dir_X = []
-        for file in dir:
-            temp_dir_X.append(LoadImage(file))
-        dir_files_X.append(temp_dir_X)
-    for dir in dir_inputs_y:
-        temp_dir_y = []
-        for file in dir:
-            temp_dir_y.append(LoadImage(file))
-        dir_files_y.append(temp_dir_y)
+    dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
+    dir_inputs_y = [glob.glob(f"{d}/*") for d in dir_names_y]
 
-    for dir in dir_files_X:
-        for i in range(len(dir) - 6):
-            X_train.append(dir[i:i + 7])
-    for dir in dir_files_y:
-        for i in range(len(dir) - 6):
-            y_train.append(dir[i + 3])
+    for x, y in zip(dir_inputs_x, dir_inputs_y):
+        x.sort(), y.sort()
 
-    X_train = np.asarray(X_train)
+    dir_files_x = [list([LoadImage(file) for file in d]) for d in dir_inputs_x]
+    dir_files_y = [list([LoadImage(file) for file in d]) for d in dir_inputs_y]
+
+    for d_x, d_y in zip(dir_files_x, dir_files_y):
+        assert len(d_x) == len(d_y)
+        for i in range(len(d_x) - 6):
+            x_train.append(d_x[i:i + 7])
+            y_train.append(d_y[i + 3])
+
+    x_train = np.asarray(x_train)
     y_train = np.asarray(y_train)
 
-    X_valid = X_train[int(len(X_train) * 3 / 4):]
-    y_valid = y_train[int(len(y_train) * 3 / 4):]
-    X_train = X_train[:int(len(X_train) * 3 / 4)]
-    y_train = y_train[:int(len(y_train) * 3 / 4)]
+    x_valid = x_train[int(len(x_train) * train_ratio):]
+    y_valid = y_train[int(len(y_train) * train_ratio):]
+    x_train = x_train[:int(len(x_train) * train_ratio)]
+    y_train = y_train[:int(len(y_train) * train_ratio)]
 
-    return (X_train, y_train), (X_valid, y_valid)
+    return (x_train, y_train), (x_valid, y_valid)
 
 
 def train_and_evaluate():
-
     (X_train, y_train), (X_valid, y_valid) = load_data()
     model = OurModel()
     model.compile(optimizer=keras.optimizers.Adam(), loss=keras.losses.Huber(delta=0.01))
