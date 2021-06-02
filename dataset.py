@@ -1,103 +1,73 @@
 import pickle
 import glob
 import multiprocessing
-
-from PIL import Image
 import numpy as np
 
-import sys
+from worker import worker, m_dir_hr_files, m_dir_lr_files, NUM_DIR
 
-manager = multiprocessing.Manager()
-m_dir_files = manager.dict()
 pool = multiprocessing.Pool()
 
-def load_image(path, color_mode='RGB', channel_mean=None, mod_crop=None):
-    """
-    Load an image using PIL and convert it into specified color space,
-    and return it as an numpy array.
-    https://github.com/fchollet/keras/blob/master/keras/preprocessing/image.py
-    The code is modified from Keras.preprocessing.image.load_img, img_to_array.
-    """
 
-    if mod_crop is None:
-        mod_crop = [0, 0, 0, 0]
-
-    img = Image.open(path)
-    if color_mode == 'RGB':
-        cimg = img.convert('RGB')
-        x = np.asarray(cimg, dtype='float32')
-    elif color_mode == 'YCbCr' or color_mode == 'Y':
-        cimg = img.convert('YCbCr')
-        x = np.asarray(cimg, dtype='float32')
-        if color_mode == 'Y':
-            x = x[:, :, 0:1]
+def load_data(train_ratio=0.75, checkpoint=False, is_save=False):
+    if checkpoint:
+        print("[+] Loading (checkpoint)...", end=" ", flush=True)
+        with open('./dataset.LR.pickle', 'rb') as fr:
+            dir_lr_files = pickle.load(fr)
+        with open('./dataset.HR.pickle', 'rb') as fr:
+            dir_hr_files = pickle.load(fr)
+        print(dir_lr_files)
+        print(dir_hr_files)
+        print("Done!", flush=True)
     else:
-        raise Exception(f"{color_mode} is not supported.")
+        print("[+] Dataset Crawling...", end=' ', flush=True)
+        x_train = []
+        y_train = []
 
-    # To 0-1
-    x *= 1.0 / 255.0
+        dir_names_x = glob.glob('./input/LR/*')
+        dir_names_y = glob.glob('./input/HR/*')
 
-    if channel_mean:
-        x[:, :, 0] -= channel_mean[0]
-        x[:, :, 1] -= channel_mean[1]
-        x[:, :, 2] -= channel_mean[2]
+        dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
+        dir_inputs_y = [glob.glob(f"{d}/*") for d in dir_names_y]
 
-    if mod_crop[0] * mod_crop[1] * mod_crop[2] * mod_crop[3]:
-        x = x[mod_crop[0]:-mod_crop[1], mod_crop[2]:-mod_crop[3], :]
+        target_x = [str(file) for d in dir_inputs_x for file in d]
+        target_y = [str(file) for d in dir_inputs_y for file in d]
 
-    return x
+        pool.map(worker, target_x + target_y)
+        pool.close()
+        pool.join()
+        print("Done!", flush=True)
 
+        dir_lr_files = [dict(fl) for fl in m_dir_lr_files]
+        dir_hr_files = [dict(fl) for fl in m_dir_hr_files]
 
-def worker(path: str):
-    print("[S]" + path), sys.stdout.flush()
-    m_dir_files[path] = load_image(path)
-    print("[D]" + path), sys.stdout.flush()
+        dir_lr_files = []
+        dir_hr_files = []
 
+        for fl in m_dir_lr_files:
+            dir_lr_files.append(dict(fl))
+            del fl
 
-def load_data(train_ratio=0.75):
-    x_train = []
-    y_train = []
+        for fl in m_dir_hr_files:
+            dir_hr_files.append(dict(fl))
+            del fl
 
-    dir_names_x = glob.glob('./input/LR/*')
-    dir_names_y = glob.glob('./input/HR/*')
+        if is_save:
+            print("[+] Saving (checkpoint)...", end=' ', flush=True)
+            with open('dataset.LR.pickle', 'wb') as fr:
+                pickle.dump(dir_lr_files, fr)
+            with open('dataset.HR.pickle', 'wb') as fr:
+                pickle.dump(dir_hr_files, fr)
+            print("Done!", flush=True)
 
-    dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
-    dir_inputs_y = [glob.glob(f"{d}/*") for d in dir_names_y]
+    m_dir_files_x, m_dir_files_y = [[] for _ in range(NUM_DIR)], [[] for _ in range(NUM_DIR)]
 
-    for x, y in zip(dir_inputs_x, dir_inputs_y):
-        x.sort(), y.sort()
+    for d_key, d_dict in enumerate(dir_lr_files):
+        for i in range(max(d_dict)):
+            m_dir_files_x[d_key].append(d_dict[i])
 
-    target_x = [str(file) for d in dir_inputs_x for file in d]
-    target_y = [str(file) for d in dir_inputs_y for file in d]
-
-    pool.map(worker, target_x + target_y)
-    pool.close()
-    pool.join()
-
-    images = sorted(m_dir_files.items())
-
-    with open('dataset.raw.pickle', 'wb') as fr:
-        pickle.dump(images, fr)
-
-    d_dir_files_x, d_dir_files_y = {}, {}
-
-    for path, value in images:
-        p = path.split("/")
-        category, num, file = p[-3:]
-
-        if category == "LR":
-            if num not in d_dir_files_x:
-                d_dir_files_x[num] = []
-            d_dir_files_x[num].append(value)
-        elif category == "HR":
-            if num not in d_dir_files_y:
-                d_dir_files_y[num] = []
-            d_dir_files_y[num].append(value)
-
-    print(d_dir_files_x)
-    print(d_dir_files_y)
-
-    m_dir_files_x, m_dir_files_y = [d_dir_files_x.values()], [d_dir_files_y.values()]
+    for d_key, d_dict in enumerate(dir_hr_files):
+        for i in range(max(d_dict)):
+            m_dir_files_y[d_key].append(d_dict[i])
 
     for d_x, d_y in zip(m_dir_files_x, m_dir_files_y):
         assert len(d_x) == len(d_y)
@@ -114,9 +84,10 @@ def load_data(train_ratio=0.75):
     x_train = x_train[:int(len(x_train) * train_ratio)]
     y_train = y_train[:int(len(y_train) * train_ratio)]
 
+    print("Done!", flush=True)
     return (x_train, y_train), (x_valid, y_valid)
 
 
 if __name__ == "__main__":
     with open('dataset.pickle', 'wb') as f:
-        pickle.dump(load_data(), f)
+        pickle.dump(load_data(checkpoint=True, is_save=True), f)
