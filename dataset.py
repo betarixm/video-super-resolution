@@ -43,14 +43,11 @@ def load_image(path, color_mode='RGB', channel_mean=None, mod_crop=None):
     return x
 
 
+def worker(path: str):
+    m_dir_files[path] = load_image(path)
+
+
 def load_data(train_ratio=0.75):
-    manager = multiprocessing.Manager()
-    m_dir_files = manager.dict()
-    pool = multiprocessing.Pool()
-
-    def worker(path: str):
-        m_dir_files[path] = load_image(path)
-
     x_train = []
     y_train = []
 
@@ -93,5 +90,8 @@ def load_data(train_ratio=0.75):
 
 
 if __name__ == "__main__":
+    manager = multiprocessing.Manager()
+    m_dir_files = manager.dict()
+    pool = multiprocessing.Pool()
     with open('dataset.pickle', 'wb') as f:
         pickle.dump(load_data(), f)
