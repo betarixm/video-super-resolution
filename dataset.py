@@ -1,12 +1,56 @@
 import pickle
-
-import numpy as np
 import glob
+import multiprocessing
 
-from utils import LoadImage
+from PIL import Image
+import numpy as np
+
+
+def load_image(path, color_mode='RGB', channel_mean=None, mod_crop=None):
+    """
+    Load an image using PIL and convert it into specified color space,
+    and return it as an numpy array.
+    https://github.com/fchollet/keras/blob/master/keras/preprocessing/image.py
+    The code is modified from Keras.preprocessing.image.load_img, img_to_array.
+    """
+
+    if mod_crop is None:
+        mod_crop = [0, 0, 0, 0]
+
+    img = Image.open(path)
+    if color_mode == 'RGB':
+        cimg = img.convert('RGB')
+        x = np.asarray(cimg, dtype='float32')
+    elif color_mode == 'YCbCr' or color_mode == 'Y':
+        cimg = img.convert('YCbCr')
+        x = np.asarray(cimg, dtype='float32')
+        if color_mode == 'Y':
+            x = x[:, :, 0:1]
+    else:
+        raise Exception(f"{color_mode} is not supported.")
+
+    # To 0-1
+    x *= 1.0 / 255.0
+
+    if channel_mean:
+        x[:, :, 0] -= channel_mean[0]
+        x[:, :, 1] -= channel_mean[1]
+        x[:, :, 2] -= channel_mean[2]
+
+    if mod_crop[0] * mod_crop[1] * mod_crop[2] * mod_crop[3]:
+        x = x[mod_crop[0]:-mod_crop[1], mod_crop[2]:-mod_crop[3], :]
+
+    return x
 
 
 def load_data(train_ratio=0.75):
+    manager = multiprocessing.Manager()
+    m_dir_files = manager.dict()
+    pool = multiprocessing.Pool()
+
+    def worker(path: str):
+        m_dir_files[path] = load_image(path)
+
     x_train = []
     y_train = []
 
@@ -19,10 +63,18 @@ def load_data(train_ratio=0.75):
     for x, y in zip(dir_inputs_x, dir_inputs_y):
         x.sort(), y.sort()
 
-    dir_files_x = [list([LoadImage(file) for file in d]) for d in dir_inputs_x]
-    dir_files_y = [list([LoadImage(file) for file in d]) for d in dir_inputs_y]
+    target_x = [str(file) for d in dir_inputs_x for file in d]
+    target_y = [str(file) for d in dir_inputs_y for file in d]
 
-    for d_x, d_y in zip(dir_files_x, dir_files_y):
+    pool.map(worker, target_x + target_y)
+    pool.close()
+    pool.join()
+
+    exit()  # TODO: logic
+
+    m_dir_files_x, m_dir_files_y = [], []
+
+    for d_x, d_y in zip(m_dir_files_x, m_dir_files_y):
         assert len(d_x) == len(d_y)
 
         for i in range(len(d_x) - 6):
