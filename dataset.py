@@ -5,6 +5,11 @@ import multiprocessing
 from PIL import Image
 import numpy as np
 
+import sys
+
+manager = multiprocessing.Manager()
+m_dir_files = manager.dict()
+pool = multiprocessing.Pool()
 
 def load_image(path, color_mode='RGB', channel_mean=None, mod_crop=None):
     """
@@ -44,7 +49,9 @@ def load_image(path, color_mode='RGB', channel_mean=None, mod_crop=None):
 
 
 def worker(path: str):
+    print("[S]" + path), sys.stdout.flush()
     m_dir_files[path] = load_image(path)
+    print("[D]" + path), sys.stdout.flush()
 
 
 def load_data(train_ratio=0.75):
@@ -67,9 +74,30 @@ def load_data(train_ratio=0.75):
     pool.close()
     pool.join()
 
-    exit()  # TODO: logic
+    images = sorted(m_dir_files.items())
 
-    m_dir_files_x, m_dir_files_y = [], []
+    with open('dataset.raw.pickle', 'wb') as fr:
+        pickle.dump(images, fr)
+
+    d_dir_files_x, d_dir_files_y = {}, {}
+
+    for path, value in images:
+        p = path.split("/")
+        category, num, file = p[-3:]
+
+        if category == "LR":
+            if num not in d_dir_files_x:
+                d_dir_files_x[num] = []
+            d_dir_files_x[num].append(value)
+        elif category == "HR":
+            if num not in d_dir_files_y:
+                d_dir_files_y[num] = []
+            d_dir_files_y[num].append(value)
+
+    print(d_dir_files_x)
+    print(d_dir_files_y)
+
+    m_dir_files_x, m_dir_files_y = [d_dir_files_x.values()], [d_dir_files_y.values()]
 
     for d_x, d_y in zip(m_dir_files_x, m_dir_files_y):
         assert len(d_x) == len(d_y)
@@ -90,8 +118,5 @@ def load_data(train_ratio=0.75):
 
 
 if __name__ == "__main__":
-    manager = multiprocessing.Manager()
-    m_dir_files = manager.dict()
-    pool = multiprocessing.Pool()
     with open('dataset.pickle', 'wb') as f:
         pickle.dump(load_data(), f)
