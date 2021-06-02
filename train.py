@@ -1,9 +1,16 @@
-from tensorflow import keras
+import tensorflow as tf
 import numpy as np
 import glob
 
 from utils import LoadImage
 from nets import OurModel
+
+checkpoint_path = "checkpoint/FR_16_4.{epoch:03d}-{val_loss:.2f}"
+checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_path,
+    save_best_only=True,
+    verbose=1
+)
 
 
 def load_data(train_ratio=0.75):
@@ -42,13 +49,14 @@ def load_data(train_ratio=0.75):
 def train_and_evaluate():
     (X_train, y_train), (X_valid, y_valid) = load_data()
     model = OurModel()
-    model.compile(optimizer=keras.optimizers.Adam(), loss=keras.losses.Huber(delta=0.01))
+    model.compile(optimizer=tf.keras.optimizers.Adam(), loss=tf.keras.losses.Huber(delta=0.01))
     history = model.fit(
         X_train,
         y_train,
         batch_size=16,
-        epochs=22,
-        validation_data=(X_valid, y_valid)
+        epochs=128,
+        validation_data=(X_valid, y_valid),
+        callbacks=[checkpoint_callback]
     )
     model.save("./FR_16_4", save_format="tf")
 
