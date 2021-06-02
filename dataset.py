@@ -23,10 +23,7 @@ def load_data(train_ratio=0.75):
     dir_files_y = [list([LoadImage(file) for file in d]) for d in dir_inputs_y]
 
     for d_x, d_y in zip(dir_files_x, dir_files_y):
-        if len(d_x) != len(d_y):
-            print(d_x)
-            print(d_y)
-            exit()
+        assert len(d_x) == len(d_y)
 
         for i in range(len(d_x) - 6):
             x_train.append(d_x[i:i + 7])
