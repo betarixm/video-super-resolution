@@ -1,35 +1,31 @@
 import tensorflow as tf
-from tensorflow import keras
 import numpy as np
 
 from utils import depth_to_space_3D
 
 
-class FR_16(keras.layers.Layer):
-
+class FR_16(tf.keras.layers.Layer):
     def __init__(self, uf=4, **kwargs):
-
         super().__init__(**kwargs)
         self.uf = uf
         self.T_in = 7
 
     def build(self, batch_input_shape):
-
         F = 64
         G = 32
 
-        self.conv1 = keras.layers.Conv3D(64, kernel_size=(1, 3, 3), strides=1, padding="VALID")
-        self.conv2 = keras.layers.Conv3D(256, kernel_size=(1, 3, 3), strides=1, padding="VALID")
-        self.RconvA = [keras.layers.Conv3D(F + i * G, kernel_size=(1, 1, 1), strides=1, padding="VALID") for i in range(6)]
-        self.RconvB = [keras.layers.Conv3D(G, kernel_size=(3, 3, 3), strides=1, padding="VALID") for i in range(6)]
-        self.rconv1 = keras.layers.Conv3D(256, kernel_size=(1, 1, 1), strides=1, padding="VALID")
-        self.rconv2 = keras.layers.Conv3D(3 * self.uf * self.uf, kernel_size=(1, 1, 1), strides=1, padding="VALID")
-        self.fconv1 = keras.layers.Conv3D(512, kernel_size=(1, 1, 1), strides=1, padding="VALID")
-        self.fconv2 = keras.layers.Conv3D(1 * 5 * 5 * self.uf * self.uf, kernel_size=(1, 1, 1), strides=1, padding="VALID")
+        self.conv1 = tf.keras.layers.Conv3D(64, kernel_size=(1, 3, 3), strides=1, padding="VALID")
+        self.conv2 = tf.keras.layers.Conv3D(256, kernel_size=(1, 3, 3), strides=1, padding="VALID")
+        self.RconvA = [tf.keras.layers.Conv3D(F + i * G, kernel_size=(1, 1, 1), strides=1, padding="VALID") for i in range(6)]
+        self.RconvB = [tf.keras.layers.Conv3D(G, kernel_size=(3, 3, 3), strides=1, padding="VALID") for i in range(6)]
+        self.rconv1 = tf.keras.layers.Conv3D(256, kernel_size=(1, 1, 1), strides=1, padding="VALID")
+        self.rconv2 = tf.keras.layers.Conv3D(3 * self.uf * self.uf, kernel_size=(1, 1, 1), strides=1, padding="VALID")
+        self.fconv1 = tf.keras.layers.Conv3D(512, kernel_size=(1, 1, 1), strides=1, padding="VALID")
+        self.fconv2 = tf.keras.layers.Conv3D(1 * 5 * 5 * self.uf * self.uf, kernel_size=(1, 1, 1), strides=1, padding="VALID")
 
-        self.RbnA = [keras.layers.BatchNormalization() for i in range(6)]
-        self.RbnB = [keras.layers.BatchNormalization() for i in range(6)]
-        self.fbn = keras.layers.BatchNormalization()
+        self.RbnA = [tf.keras.layers.BatchNormalization() for i in range(6)]
+        self.RbnB = [tf.keras.layers.BatchNormalization() for i in range(6)]
+        self.fbn = tf.keras.layers.BatchNormalization()
 
         super().build(batch_input_shape)
 
@@ -42,37 +38,37 @@ class FR_16(keras.layers.Layer):
         x = self.conv1(tf.pad(inputs, sp, mode='CONSTANT'))
         for i in range(0, 3):
             t = self.RbnA[i](x)
-            t = keras.layers.Activation("relu")(t)
+            t = tf.keras.layers.Activation("relu")(t)
             t = self.RconvA[i](t)
 
             t = self.RbnB[i](t)
-            t = keras.layers.Activation("relu")(tf.pad(t, stp, mode='CONSTANT'))
+            t = tf.keras.layers.Activation("relu")(tf.pad(t, stp, mode='CONSTANT'))
             t = self.RconvB[i](t)
 
             x = tf.concat([x, t], 4)
 
         for i in range(3, 6):
             t = self.RbnA[i](x)
-            t = keras.layers.Activation("relu")(t)
+            t = tf.keras.layers.Activation("relu")(t)
             t = self.RconvA[i](t)
 
             t = self.RbnB[i](t)
-            t = keras.layers.Activation("relu")(t)
+            t = tf.keras.layers.Activation("relu")(t)
             t = self.RconvB[i](tf.pad(t, sp, mode='CONSTANT'))
 
             x = tf.concat([x[:, 1:-1], t], 4)
 
         x = self.fbn(x)
-        x = keras.layers.Activation("relu")(x)
+        x = tf.keras.layers.Activation("relu")(x)
         x = self.conv2(tf.pad(x, sp, mode='CONSTANT'))
         x = tf.nn.relu(x)
 
         r = self.rconv1(x)
-        r = keras.layers.Activation("relu")(r)
+        r = tf.keras.layers.Activation("relu")(r)
         r = self.rconv2(r)
 
         f = self.fconv1(r)
-        f = keras.layers.Activation("relu")(f)
+        f = tf.keras.layers.Activation("relu")(f)
         f = self.fconv2(f)
 
         ds_f = tf.shape(f)
@@ -81,7 +77,7 @@ class FR_16(keras.layers.Layer):
 
         return f, r
 
-    class DynFilter(keras.layers.Layer):
+    class DynFilter(tf.keras.layers.Layer):
 
         def __init__(self, filter_size, **kwargs):
             """
@@ -117,7 +113,7 @@ class FR_16(keras.layers.Layer):
             x = tf.squeeze(x, axis=3)  # b, h, w, R*R
 
 
-class DynFilter(keras.layers.Layer):
+class DynFilter(tf.keras.layers.Layer):
 
     def __init__(self, filter_size, **kwargs):
         """
@@ -129,7 +125,6 @@ class DynFilter(keras.layers.Layer):
 
         self.filter_size = filter_size
 
-
     def build(self, batch_input_shape):
 
         # make tower
@@ -140,7 +135,6 @@ class DynFilter(keras.layers.Layer):
                                           name='filter_localexpand')
 
         super().build(batch_input_shape)
-
 
     def call(self, x, **kwargs):
         """
@@ -158,7 +152,7 @@ class DynFilter(keras.layers.Layer):
         return x
 
 
-class OurModel(keras.Model):
+class OurModel(tf.keras.Model):
 
     def __init__(self, T_in=7, upscale_factor=4):
 
@@ -168,7 +162,6 @@ class OurModel(keras.Model):
         self.upscale_factor = upscale_factor
 
     def build(self, batch_input_shape):
-
         self.FR_16 = FR_16()
         self.DynFilter = [DynFilter([1, 5, 5]) for c in range(3)]
 
@@ -176,8 +169,6 @@ class OurModel(keras.Model):
 
     def call(self, inputs):
         f, r = self.FR_16(inputs)
-
-        #return self.DynFilter(inputs, filter=f)
         x_c = []
         for c in range(3):
             t = self.DynFilter[c](inputs[:, self.T_in // 2:self.T_in // 2 + 1, :, :, c], filter=f[:, 0, :, :, :, :])  # [B,H,W,R*R]
