@@ -5,7 +5,12 @@ import tensorflow as tf
 from dataset import load_data
 from nets import OurModel
 
+EPOCHS = 128
 BATCH_SIZE = 32
+INIT_LR = 0.0001
+FIRST_DECAY_STEPS = 40
+TRAIN_DATASET_RATIO = 0.9
+HUBER_DELTA = 1.35
 
 checkpoint_path = "checkpoint/FR_16_4." + str(int(time.time())) + ".{epoch:03d}-{val_loss:.5f}"
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
@@ -15,15 +20,22 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 )
 
 lr_schedule = tf.keras.optimizers.schedules.CosineDecayRestarts(
-    initial_learning_rate=0.0001,
-    first_decay_steps=40
+    initial_learning_rate=INIT_LR,
+    first_decay_steps=FIRST_DECAY_STEPS
 )
 
 
 def train_and_evaluate():
-    print("[+] init lr 0.0001 / decay step 40 / huber 1.35 / train ratio 0.9")
+    print(f"[+] Training Information"
+          f"    Epochs:           {EPOCHS}\n"
+          f"    Batch size:       {BATCH_SIZE}\n"
+          f"    Initial LR:       {INIT_LR}\n"
+          f"    First decay step: {FIRST_DECAY_STEPS}\n"
+          f"    Training set:     {TRAIN_DATASET_RATIO}\n"
+          f"    Huber delta:      {HUBER_DELTA}\n")
+
     strategy = tf.distribute.MirroredStrategy()
-    (x_train, y_train), (x_valid, y_valid) = load_data(train_ratio=0.9)
+    (x_train, y_train), (x_valid, y_valid) = load_data(train_ratio=TRAIN_DATASET_RATIO)
 
     train_data = tf.data.Dataset.from_tensor_slices((x_train, y_train))
     val_data = tf.data.Dataset.from_tensor_slices((x_valid, y_valid))
@@ -39,13 +51,13 @@ def train_and_evaluate():
         model = OurModel()
         model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),
-            loss=tf.keras.losses.Huber(delta=1.35)
+            loss=tf.keras.losses.Huber(delta=HUBER_DELTA)
         )
 
         history = model.fit(
             train_data,
             batch_size=BATCH_SIZE,
-            epochs=128,
+            epochs=EPOCHS,
             validation_data=val_data,
             callbacks=[checkpoint_callback]
         )
