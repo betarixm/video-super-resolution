@@ -13,19 +13,20 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
 )
 
 lr_schedule = tf.keras.optimizers.schedules.CosineDecayRestarts(
-    initial_learning_rate=0.001,
-    first_decay_steps=100
+    initial_learning_rate=0.0001,
+    first_decay_steps=40
 )
 
 
 def train_and_evaluate():
+    print("[+] init lr 0.0001 / decay step 40 / huber 1.35 / train ratio 0.9")
     strategy = tf.distribute.MirroredStrategy()
-    (X_train, y_train), (X_valid, y_valid) = load_data()
+    (X_train, y_train), (X_valid, y_valid) = load_data(train_ratio=0.9)
     with strategy.scope():
         model = OurModel()
         model.compile(
-            optimizer=tf.keras.optimizers.Nadam(learning_rate=lr_schedule),
-            loss=tf.keras.losses.Huber(delta=0.01)
+            optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),
+            loss=tf.keras.losses.Huber(delta=1.35)
         )
 
         history = model.fit(
@@ -36,7 +37,7 @@ def train_and_evaluate():
             validation_data=(X_valid, y_valid),
             callbacks=[checkpoint_callback]
         )
-        model.save("./FR_16_4", save_format="tf")
+        model.save(f"./FR_16_4_{str(int(time.time()))}", save_format="tf")
 
 
 if __name__ == "__main__":
