@@ -20,8 +20,6 @@ def load_data(train_ratio=0.75, checkpoint=False, is_save=False):
         print("Done!", flush=True)
     else:
         print("[+] Dataset Crawling...", end=' ', flush=True)
-        x_train = []
-        y_train = []
 
         dir_names_x = glob.glob('./input/LR/*')
         dir_names_y = glob.glob('./input/HR/*')
@@ -37,11 +35,7 @@ def load_data(train_ratio=0.75, checkpoint=False, is_save=False):
         pool.join()
         print("Done!", flush=True)
 
-        dir_lr_files = [dict(fl) for fl in m_dir_lr_files]
-        dir_hr_files = [dict(fl) for fl in m_dir_hr_files]
-
-        dir_lr_files = []
-        dir_hr_files = []
+        dir_lr_files, dir_hr_files = [], []
 
         for fl in m_dir_lr_files:
             dir_lr_files.append(dict(fl))
@@ -62,12 +56,14 @@ def load_data(train_ratio=0.75, checkpoint=False, is_save=False):
     m_dir_files_x, m_dir_files_y = [[] for _ in range(NUM_DIR)], [[] for _ in range(NUM_DIR)]
 
     for d_key, d_dict in enumerate(dir_lr_files):
-        for i in range(max(d_dict)):
+        for i in range(len(d_dict)):
             m_dir_files_x[d_key].append(d_dict[i])
 
     for d_key, d_dict in enumerate(dir_hr_files):
-        for i in range(max(d_dict)):
+        for i in range(len(d_dict)):
             m_dir_files_y[d_key].append(d_dict[i])
+
+    x_train, y_train = [], []
 
     for d_x, d_y in zip(m_dir_files_x, m_dir_files_y):
         assert len(d_x) == len(d_y)
@@ -76,8 +72,9 @@ def load_data(train_ratio=0.75, checkpoint=False, is_save=False):
             x_train.append(d_x[i:i + 7])
             y_train.append(d_y[i + 3])
 
-    x_train = np.asarray(x_train)
-    y_train = np.asarray(y_train)
+    print(f"[+] X: {len(x_train)}, Y: {y_train}")
+
+    x_train, y_train = np.asarray(x_train), np.asarray(y_train)
 
     x_valid = x_train[int(len(x_train) * train_ratio):]
     y_valid = y_train[int(len(y_train) * train_ratio):]
