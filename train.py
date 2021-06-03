@@ -1,9 +1,11 @@
+import time
+
 import tensorflow as tf
 
 from dataset import load_data
 from nets import OurModel
 
-checkpoint_path = "checkpoint/FR_16_4.{epoch:03d}-{val_loss:.2f}"
+checkpoint_path = "checkpoint/FR_16_4." + str(int(time.time())) + ".{epoch:03d}-{val_loss:.5f}"
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
     save_weights_only=True,
@@ -39,6 +41,3 @@ def train_and_evaluate():
 
 if __name__ == "__main__":
     train_and_evaluate()
-
-
-
