@@ -129,10 +129,10 @@ class DynFilter(tf.keras.layers.Layer):
 
         # make tower
         self.filter_local_expand_np = np.reshape(np.eye(np.prod(self.filter_size), np.prod(self.filter_size)),
-                                            (self.filter_size[1], self.filter_size[2], self.filter_size[0],
-                                             np.prod(self.filter_size)))
+                                                 (self.filter_size[1], self.filter_size[2], self.filter_size[0],
+                                                  np.prod(self.filter_size)))
         self.filter_local_expand = tf.Variable(self.filter_local_expand_np, trainable=False, dtype='float32',
-                                          name='filter_localexpand')
+                                               name='filter_localexpand')
 
         super().build(batch_input_shape)
 

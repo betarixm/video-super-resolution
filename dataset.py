@@ -20,8 +20,6 @@ def load_data(train_ratio=0.75, checkpoint=False, is_save=False):
         print("Done!", flush=True)
     else:
         print("[+] Dataset Crawling...", end=' ', flush=True)
-        x_train = []
-        y_train = []
 
         dir_names_x = glob.glob('./input/LR/*')
         dir_names_y = glob.glob('./input/HR/*')
