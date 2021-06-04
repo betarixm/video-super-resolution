@@ -11,8 +11,9 @@ INIT_LR = 0.0001
 FIRST_DECAY_STEPS = 40
 TRAIN_DATASET_RATIO = 0.9
 HUBER_DELTA = 1.35
+ID = str(int(time.time()))
 
-checkpoint_path = "checkpoint/FR_16_4." + str(int(time.time())) + ".{epoch:03d}-{val_loss:.5f}"
+checkpoint_path = "checkpoint/FR_16_4." + ID + ".{epoch:03d}-{val_loss:.5f}"
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
     save_weights_only=True,
@@ -26,7 +27,8 @@ lr_schedule = tf.keras.optimizers.schedules.CosineDecayRestarts(
 
 
 def train_and_evaluate():
-    print(f"[+] Training Information"
+    print(f"[+] Training Information\n"
+          f"    ID:               {ID}\n"
           f"    Epochs:           {EPOCHS}\n"
           f"    Batch size:       {BATCH_SIZE}\n"
           f"    Initial LR:       {INIT_LR}\n"
@@ -61,7 +63,7 @@ def train_and_evaluate():
             validation_data=val_data,
             callbacks=[checkpoint_callback]
         )
-        model.save(f"./FR_16_4_{str(int(time.time()))}", save_format="tf")
+        model.save(f"./FR_16_4_{ID}", save_format="tf")
 
 
 if __name__ == "__main__":
