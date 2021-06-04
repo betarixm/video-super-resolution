@@ -9,6 +9,8 @@ from nets import OurModel
 from dataset import load_data
 from train import lr_schedule, HUBER_DELTA
 
+PATH = "checkpoint/FR_16_4.1622718916.115-0.00215"
+
 if __name__ == "__main__":
     (x_train, y_train), (_, __) = load_data(num_dir=0, train_ratio=1.0)
 
@@ -17,7 +19,7 @@ if __name__ == "__main__":
         optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),
         loss=tf.keras.losses.Huber(delta=HUBER_DELTA)
     )
-    model.load_weights("checkpoint/FR_16_4.1622718916.115-0.00215")
+    model.load_weights(PATH)
 
     model.evaluate(x_train, y_train)
     result = model.predict(x_train)
@@ -28,7 +30,7 @@ if __name__ == "__main__":
 
     dir_counter = 0
     for dir_index, value in enumerate(dir_inputs_x):
-        path_to_dir = os.path.join(path, "result", str(dir_index))
+        path_to_dir = os.path.join(path, "result", PATH, str(dir_index))
         os.mkdir(path_to_dir)
         for file_index in range(len(value) - 6):
             path_to_save = os.path.join(path_to_dir, str(file_index+3) + ".png")
