@@ -6,17 +6,18 @@ from dataset import load_data
 from nets import OurModel
 
 EPOCHS = 128
-BATCH_SIZE = 32
-INIT_LR = 0.0001
-FIRST_DECAY_STEPS = 40
+BATCH_SIZE = 16
+INIT_LR = 0.01
+FIRST_DECAY_STEPS = 50
 TRAIN_DATASET_RATIO = 0.9
-HUBER_DELTA = 1.35
+HUBER_DELTA = 200.0
 ID = str(int(time.time()))
 
 checkpoint_path = "checkpoint/FR_16_4." + ID + ".{epoch:03d}-{val_loss:.5f}"
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_path,
     save_weights_only=True,
+    save_best_only=True,
     verbose=1
 )
 
