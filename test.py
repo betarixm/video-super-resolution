@@ -5,28 +5,25 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-from utils import depth_to_space_3D
-from nets import FR_16, DynFilter
+from nets import OurModel
 from dataset import load_data
+from train import lr_schedule, HUBER_DELTA
 
 if __name__ == "__main__":
-    (x_train, y_train), (_, __) = load_data(train_ratio=1.0)
+    (x_train, y_train), (_, __) = load_data(num_dir=0, train_ratio=1.0)
 
-    model = tf.keras.models.load_model(
-        "./FR_16_4",
-        custom_objects={
-            "FR_16": FR_16,
-            "DynFilter": DynFilter,
-            "depth_to_space_3D": depth_to_space_3D
-        }
+    model = OurModel()
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),
+        loss=tf.keras.losses.Huber(delta=HUBER_DELTA)
     )
+    model.load_weights("checkpoint/FR_16_4.1622718916.115-0.00215")
 
     model.evaluate(x_train, y_train)
     result = model.predict(x_train)
     path = "."
 
-    dir_names_x = glob.glob('./input/LR/*')
-
+    dir_names_x = glob.glob('./input/LR/0')
     dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
 
     dir_counter = 0

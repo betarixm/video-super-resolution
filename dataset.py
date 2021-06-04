@@ -8,7 +8,7 @@ from worker import worker, m_dir_hr_files, m_dir_lr_files, NUM_DIR
 pool = multiprocessing.Pool()
 
 
-def load_data(train_ratio=0.75, checkpoint=False, is_save=False):
+def load_data(train_ratio=0.75, num_dir=None, checkpoint=False, is_save=False):
     if checkpoint:
         print("[+] Loading (checkpoint)...", end=" ", flush=True)
         with open('./dataset.LR.pickle', 'rb') as fr:
@@ -21,8 +21,10 @@ def load_data(train_ratio=0.75, checkpoint=False, is_save=False):
     else:
         print("[+] Dataset Crawling...", end=' ', flush=True)
 
-        dir_names_x = glob.glob('./input/LR/*')
-        dir_names_y = glob.glob('./input/HR/*')
+        if num_dir is None:
+            dir_names_x, dir_names_y = glob.glob('./input/LR/*'), glob.glob('./input/HR/*')
+        else:
+            dir_names_x, dir_names_y = glob.glob(f'./input/LR/{num_dir}'), glob.glob(f"./input/HR/{num_dir}")
 
         dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
         dir_inputs_y = [glob.glob(f"{d}/*") for d in dir_names_y]

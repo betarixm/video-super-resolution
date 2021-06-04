@@ -10,8 +10,6 @@ m_dir_hr_files = [manager.dict() for _ in range(NUM_DIR)]
 
 
 def worker(path: str):
-    print("[S]" + path, flush=True)
-
     color_mode, channel_mean, mod_crop='RGB', None, [0, 0, 0, 0]
 
     img = Image.open(path)
@@ -44,5 +42,3 @@ def worker(path: str):
         m_dir_hr_files[int(num_dir)][int(num_file.replace(".png", ""))] = x
     elif category == "LR":
         m_dir_lr_files[int(num_dir)][int(num_file.replace(".png", ""))] = x
-
-    print("[D]" + path, flush=True)
