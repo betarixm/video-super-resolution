@@ -26,10 +26,8 @@ if __name__ == "__main__":
     path = "."
 
     dir_names_x = glob.glob('./input/LR/*')
-    dir_names_y = glob.glob('./input/HR/*')
 
     dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
-    dir_inputs_y = [glob.glob(f"{d}/*") for d in dir_names_y]
 
     dir_counter = 0
     for dir_index, value in enumerate(dir_inputs_x):
