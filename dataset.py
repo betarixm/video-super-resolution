@@ -31,8 +31,6 @@ def load_data(train_ratio=0.75, num_dir=None, checkpoint=False, is_save=False):
             dir_names_x, dir_names_y = glob.glob(f'./input/LR/{num_dir}'), glob.glob(f"./input/HR/{num_dir}")
 
         dir_names_x.sort(), dir_names_y.sort()
-        dir_names_x = random.choices(dir_names_x, k=DIR_NUM)
-        dir_names_y = random.choices(dir_names_y, k=DIR_NUM)
         dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
         dir_inputs_y = [glob.glob(f"{d}/*") for d in dir_names_y]
 
