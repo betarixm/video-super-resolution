@@ -31,8 +31,10 @@ if __name__ == "__main__":
 
     dir_counter = 0
     for dir_index, value in enumerate(dir_inputs_x):
-        path_to_dir = os.path.join(path, "result", PATH, str(dir_index))
-        os.makedirs(path_to_dir)
+        path_to_dir = os.path.join(path, "result", PATH, f"{TARGET_DIR:03d}")
+        if not os.path.exists(path_to_dir):
+            os.makedirs(path_to_dir)
+            
         for file_index in range(len(value) - 6):
             path_to_save = os.path.join(path_to_dir, str(file_index+3) + ".png")
             img = Image.fromarray(np.around(result[dir_counter][0] * 255).astype(np.uint8))
