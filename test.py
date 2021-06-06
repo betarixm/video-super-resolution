@@ -10,9 +10,10 @@ from dataset import load_data
 from train import lr_schedule, HUBER_DELTA
 
 PATH = "FR_16_4.1622873040.034-0.00526"
+TARGET_DIR = 0
 
 if __name__ == "__main__":
-    (x_train, y_train), (_, __) = load_data(num_dir=0, train_ratio=1.0)
+    (x_train, y_train), (_, __) = load_data(num_dir=TARGET_DIR, train_ratio=1.0)
 
     model = OurModel()
     model.compile(
@@ -25,7 +26,7 @@ if __name__ == "__main__":
     result = model.predict(x_train)
     path = "."
 
-    dir_names_x = glob.glob('./input/LR/000')
+    dir_names_x = glob.glob(f"./input/LR/{TARGET_DIR:03d}")
     dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
 
     dir_counter = 0
