@@ -1,73 +1,39 @@
-from tensorflow import keras
-from keras.preprocessing.image import array_to_img
+import os
+import glob
+
+import tensorflow as tf
 import numpy as np
 from PIL import Image
-import glob
-import os
 
-from utils import LoadImage, depth_to_space_3D
-from nets import FR_16, DynFilter
+from nets import OurModel
+from dataset import load_data
+from train import lr_schedule, HUBER_DELTA
+
+PATH = "checkpoint/FR_16_4.1622718916.115-0.00215"
 
 if __name__ == "__main__":
-    X_train = []
-    y_train = []
+    (x_train, y_train), (_, __) = load_data(num_dir=0, train_ratio=1.0)
 
-    dir_names_X = glob.glob('./input/LR/*')
-    dir_names_y = glob.glob('./input/HR/*')
-    dir_inputs_X = []
-    dir_inputs_y = []
-    for dir in dir_names_X:
-        dir_inputs_X.append(glob.glob(dir + '/*'))
-    for dir in dir_names_y:
-        dir_inputs_y.append(glob.glob(dir + '/*'))
-    for dir in dir_inputs_X:
-        dir.sort()
-    for dir in dir_inputs_y:
-        dir.sort()
-
-    dir_files_X = []
-    dir_files_y = []
-    for dir in dir_inputs_X:
-        temp_dir_X = []
-        for file in dir:
-            temp_dir_X.append(LoadImage(file))
-        dir_files_X.append(temp_dir_X)
-    for dir in dir_inputs_y:
-        temp_dir_y = []
-        for file in dir:
-            temp_dir_y.append(LoadImage(file))
-        dir_files_y.append(temp_dir_y)
-
-    for dir in dir_files_X:
-        for i in range(len(dir) - 6):
-            X_train.append(dir[i:i + 7])
-    for dir in dir_files_y:
-        for i in range(len(dir) - 6):
-            y_train.append(dir[i + 3])
-
-    X_train = np.asarray(X_train)
-    y_train = np.asarray(y_train)
-
-    model = keras.models.load_model(
-        "./FR_16_4",
-        custom_objects={
-            "FR_16": FR_16,
-            "DynFilter": DynFilter,
-            "depth_to_space_3D": depth_to_space_3D
-        }
+    model = OurModel()
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),
+        loss=tf.keras.losses.Huber(delta=HUBER_DELTA)
     )
-    model.evaluate(X_train, y_train)
-    result = model.predict(X_train)
+    model.load_weights(PATH)
 
-    i = 0
+    model.evaluate(x_train, y_train)
+    result = model.predict(x_train)
     path = "."
-    for dir_index in range(len(dir_inputs_X)):
-        path_to_dir = os.path.join(path, "result", str(dir_index))
+
+    dir_names_x = glob.glob('./input/LR/0')
+    dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
+
+    dir_counter = 0
+    for dir_index, value in enumerate(dir_inputs_x):
+        path_to_dir = os.path.join(path, "result", PATH, str(dir_index))
         os.mkdir(path_to_dir)
-        for file_index in range(len(dir) - 6):
+        for file_index in range(len(value) - 6):
             path_to_save = os.path.join(path_to_dir, str(file_index+3) + ".png")
-            #img = array_to_img(result[i][0])
-            #img = Image.fromarray(np.uint8(np.around(result[i][0])))
-            img = Image.fromarray(np.around(result[i][0]*255).astype(np.uint8))
+            img = Image.fromarray(np.around(result[dir_counter][0] * 255).astype(np.uint8))
             img.save(path_to_save)
-            i += 1
+            dir_counter += 1
