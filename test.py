@@ -9,7 +9,7 @@ from nets import OurModel
 from dataset import load_data
 from train import lr_schedule, HUBER_DELTA
 
-PATH = "checkpoint/FR_16_4.1622718916.115-0.00215"
+PATH = "FR_16_4.1622873040.034-0.00526"
 
 if __name__ == "__main__":
     (x_train, y_train), (_, __) = load_data(num_dir=0, train_ratio=1.0)
@@ -25,13 +25,13 @@ if __name__ == "__main__":
     result = model.predict(x_train)
     path = "."
 
-    dir_names_x = glob.glob('./input/LR/0')
+    dir_names_x = glob.glob('./input/LR/000')
     dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
 
     dir_counter = 0
     for dir_index, value in enumerate(dir_inputs_x):
         path_to_dir = os.path.join(path, "result", PATH, str(dir_index))
-        os.mkdir(path_to_dir)
+        os.makedirs(path_to_dir)
         for file_index in range(len(value) - 6):
             path_to_save = os.path.join(path_to_dir, str(file_index+3) + ".png")
             img = Image.fromarray(np.around(result[dir_counter][0] * 255).astype(np.uint8))
