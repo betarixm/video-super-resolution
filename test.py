@@ -36,5 +36,7 @@ if __name__ == "__main__":
         for file_index in range(len(value) - 6):
             path_to_save = os.path.join(path_to_dir, str(file_index+3) + ".png")
             img = Image.fromarray(np.around(result[dir_counter][0] * 255).astype(np.uint8))
+            if os.path.exists(path_to_save):
+                os.remove(path_to_save)
             img.save(path_to_save)
             dir_counter += 1
