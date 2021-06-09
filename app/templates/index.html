@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Upload</button>
+    </form>
+    <ul>
+        {% for filename, attr in file_list %}
+            <li>
+                {{ filename }}
+                {% if "upload" in attr %}
+                    <a href="/download/uploads/{{ filename }}">Original</a>
+                {% endif %}
+                {% if "processed" in attr %}
+                    <a href="/download/processed/{{ filename }}">Processed</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
