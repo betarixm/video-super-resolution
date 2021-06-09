@@ -4,7 +4,6 @@
 import tensorflow as tf
 from PIL import Image
 import numpy as np
-import h5py
 
 
 def LoadImage(path, color_mode='RGB', channel_mean=None, mod_crop=None):

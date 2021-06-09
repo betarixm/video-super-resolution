@@ -1,3 +1,6 @@
+/input
+/result
+
 # Created by https://www.toptal.com/developers/gitignore/api/macos,python,pycharm
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,python,pycharm
 
@@ -283,3 +286,5 @@ Thumbs.db
 
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,pycharm
+/app/uploads/
+/app/processed/

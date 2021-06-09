@@ -1,10 +1,13 @@
 import pickle
 import glob
 import multiprocessing
+import random
+
 import numpy as np
 
 from worker import worker, m_dir_hr_files, m_dir_lr_files, NUM_DIR
 
+DIR_NUM = 300
 pool = multiprocessing.Pool()
 
 
@@ -23,11 +26,15 @@ def load_data(train_ratio=0.75, num_dir=None, checkpoint=False, is_save=False):
 
         if num_dir is None:
             dir_names_x, dir_names_y = glob.glob('./input/LR/*'), glob.glob('./input/HR/*')
+            dir_names_x, dir_names_y = random.sample(dir_names_x, k=DIR_NUM), random.sample(dir_names_y, k=DIR_NUM)
         else:
-            dir_names_x, dir_names_y = glob.glob(f'./input/LR/{num_dir}'), glob.glob(f"./input/HR/{num_dir}")
+            dir_names_x, dir_names_y = glob.glob(f'./input/LR/{num_dir:03d}'), glob.glob(f"./input/HR/{num_dir:03d}")
 
+        dir_names_x.sort(), dir_names_y.sort()
         dir_inputs_x = [glob.glob(f"{d}/*") for d in dir_names_x]
         dir_inputs_y = [glob.glob(f"{d}/*") for d in dir_names_y]
+
+        print(f"[+] Selected sets: {', '.join([x.split('/')[-1] for x in dir_names_x])}")
 
         target_x = [str(file) for d in dir_inputs_x for file in d]
         target_y = [str(file) for d in dir_inputs_y for file in d]
@@ -68,7 +75,10 @@ def load_data(train_ratio=0.75, num_dir=None, checkpoint=False, is_save=False):
 
     x_train, y_train = [], []
     for d_x, d_y in zip(m_dir_files_x, m_dir_files_y):
-        assert len(d_x) == len(d_y)
+        try:
+            assert len(d_x) == len(d_y)
+        except AssertionError as e:
+            print(f"[E] len(d_x): {len(d_x)} len(d_y): {len(d_y)}")
 
         for i in range(len(d_x) - 6):
             x_train.append(d_x[i:i + 7])
@@ -78,6 +88,7 @@ def load_data(train_ratio=0.75, num_dir=None, checkpoint=False, is_save=False):
 
     x_train, y_train = np.asarray(x_train), np.asarray(y_train)
 
+    print(f"[+] {len(x_train)}")
     x_valid = x_train[int(len(x_train) * train_ratio):]
     y_valid = y_train[int(len(y_train) * train_ratio):]
     x_train = x_train[:int(len(x_train) * train_ratio)]
