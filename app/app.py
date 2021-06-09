@@ -1,3 +1,4 @@
+import glob
 import os.path
 
 from flask import Flask, render_template, redirect, send_file
@@ -6,6 +7,7 @@ from werkzeug.utils import secure_filename
 import environ as env
 import session as session_m
 import file as file_m
+import video
 
 
 app = Flask(__name__)
@@ -31,6 +33,27 @@ def upload():
 def download(category, filename):
     session_id = session_m.auth()
     return send_file(os.path.join(".", secure_filename(category), session_id, secure_filename(filename)))
+
+
+@app.route("/process/<filename>", methods=["POST"])
+def process(filename: str):
+    session_id = session_m.auth()
+    video.process(session_id, filename)
+    return redirect("/")
+
+
+@app.route("/status/<filename>", methods=["GET", "POST"])
+def status(filename: str):
+    session_id = session_m.auth()
+
+    if filename in video.running:
+        return "processing"
+    elif filename in [os.path.basename(f) for f in glob.glob(f"{app.config['PROCESSED_FOLDER']}/{session_id}/*")]:
+        return "processed"
+    elif filename in [os.path.basename(f) for f in glob.glob(f"{app.config['UPLOAD_FOLDER']}/{session_id}/*")]:
+        return "uploaded"
+    else:
+        return "none"
 
 
 if __name__ == "__main__":

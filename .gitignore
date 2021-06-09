@@ -287,3 +287,4 @@ Thumbs.db
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,pycharm
 /app/uploads/
+/app/processed/

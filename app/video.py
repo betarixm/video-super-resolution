@@ -1,3 +1,8 @@
+import time
+
+running = {}
+
+
 def split_video(session_id: str, filename: str):
     """
     TODO: split video into proper files.
@@ -10,8 +15,20 @@ def split_video(session_id: str, filename: str):
 
 
 def process(session_id: str, filename: str):
+    if session_id not in running:
+        running[session_id] = []
+
+    if filename in running[session_id]:
+        return False
+
+    running[session_id].append(filename)
     """
     TODO: Process it!
     Using result of split_video, run tensorflow model.
     Merge and save these result into "processed/{session_id}/{filename}"
     """
+    # Start
+    time.sleep(10)
+    # End
+    running[session_id].remove(filename)
+

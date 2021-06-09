@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <script>
+        function req(filename){
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "/process/" + filename);
+            xhr.send();
+        }
+    </script>
+
     <form action="/upload" method="post" enctype="multipart/form-data">
         <input type="file" name="file">
         <button type="submit">Upload</button>
@@ -9,8 +17,8 @@
         {% for filename, attr in file_list %}
             <li>
                 {{ filename }}
-                {% if "upload" in attr %}
-                    <a href="/download/uploads/{{ filename }}">Original</a>
+                {% if "processing" not in attr and "processed" not in attr %}
+                    <button type="button" onclick="req('{{ filename }}')">Submit</button>
                 {% endif %}
                 {% if "processed" in attr %}
                     <a href="/download/processed/{{ filename }}">Processed</a>
