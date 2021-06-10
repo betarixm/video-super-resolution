@@ -5,7 +5,8 @@ import cv2
 import tensorflow as tf
 from PIL import Image
 import numpy as np
-from uwsgidecorators import thread
+#from uwsgidecorators import thread
+from core.train import lr_schedule, HUBER_DELTA
 
 from core.nets import FR_16, DynFilter, OurModel
 from core.utils import depth_to_space_3D
@@ -61,7 +62,7 @@ def split_video(session_id: str, filename: str):
     cv2.destroyAllWindows()
 
 
-@thread
+#@thread
 def process(session_id: str, filename: str):
     if session_id not in running:
         running[session_id] = []
@@ -116,6 +117,10 @@ def process(session_id: str, filename: str):
     #     }
     # )
     model = OurModel()
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),
+        loss=tf.keras.losses.Huber(delta=HUBER_DELTA)
+    )
     model.load_weights(weight_path)
     img_array_output = model.predict(input_img_array)
 

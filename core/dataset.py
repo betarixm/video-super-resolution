@@ -5,7 +5,7 @@ import random
 
 import numpy as np
 
-from worker import worker, m_dir_hr_files, m_dir_lr_files, NUM_DIR
+from core.worker import worker, m_dir_hr_files, m_dir_lr_files, NUM_DIR
 
 DIR_NUM = 300
 pool = multiprocessing.Pool()

@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-from utils import depth_to_space_3D
+from core.utils import depth_to_space_3D
 
 
 class FR_16(tf.keras.layers.Layer):

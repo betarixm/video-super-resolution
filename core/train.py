@@ -2,8 +2,8 @@ import time
 
 import tensorflow as tf
 
-from dataset import load_data
-from nets import OurModel
+from core.dataset import load_data
+from core.nets import OurModel
 
 EPOCHS = 128
 BATCH_SIZE = 16
