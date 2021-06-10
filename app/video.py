@@ -15,6 +15,7 @@ running = {}
 path = os.path.abspath(os.getcwd())
 weight_path = os.path.join(path, os.path.pardir, 'FR_16_4_1622865812')
 
+
 def split_video(session_id: str, filename: str):
     """
     Original video file is in "uploads/{session_id}/{filename}"
@@ -47,13 +48,13 @@ def split_video(session_id: str, filename: str):
         write_frame_path = os.path.join(write_frame_dir_path, '{:05}'.format(i))
         if not os.path.isdir(write_frame_path):
             os.mkdir(write_frame_path)
-        for j in range(n_h+1):
+        for j in range(n_h + 1):
             write_frame_row_path = os.path.join(write_frame_path, '{:05}'.format(j))
             if not os.path.isdir(write_frame_row_path):
                 os.mkdir(write_frame_row_path)
-            for k in range(n_w+1):
+            for k in range(n_w + 1):
                 write_frame_column_path = os.path.join(write_frame_row_path, '{:05}'.format(k) + '.jpg')
-                img = frame[32*j:32*(j+1), 32*k:32*(k+1)]
+                img = frame[32 * j:32 * (j + 1), 32 * k:32 * (k + 1)]
                 cv2.imwrite(write_frame_column_path, img)
         i += 1
 
@@ -80,7 +81,7 @@ def process(session_id: str, filename: str):
     img_array = []
     input_frame_path_array = glob.glob(input_frame_path + '/*')
     input_frame_path_array.sort()
-    #input_frame_path_array = input_frame_path_array[:10]
+    # input_frame_path_array = input_frame_path_array[:10]
     input_frame_path_array = input_frame_path_array
     for frame_path in input_frame_path_array:
         num_frame = len(input_frame_path_array)
@@ -102,13 +103,13 @@ def process(session_id: str, filename: str):
         for j in range(num_row):
             for k in range(num_column):
                 frame_bunch = []
-                for l in range(i,i+7):
-                    frame_bunch.append(img_array[l*num_row*num_column+j*num_column+k])
+                for l in range(i, i + 7):
+                    frame_bunch.append(img_array[l * num_row * num_column + j * num_column + k])
                 input_img_array.append(frame_bunch)
 
     # Run Model
-    #model = OurModel()
-    #model = tf.keras.models.load_model(weight_path)
+    # model = OurModel()
+    # model = tf.keras.models.load_model(weight_path)
     model = tf.keras.models.load_model(
         weight_path,
         custom_objects={
@@ -121,18 +122,19 @@ def process(session_id: str, filename: str):
 
     # Merge into video
     merged_img_array = []
-    for i in range(num_frame-6):
+    for i in range(num_frame - 6):
         merged_image = Image.new('RGB', (num_column * 128, num_row * 128))
         for j in range(num_row):
             for k in range(num_column):
-                img = Image.fromarray(img_array_output[i*num_row*num_column + j*num_column + k][0].astype('uint8'))
-                merged_image.paste(img, (k*128, j*128))
+                img = Image.fromarray(
+                    img_array_output[i * num_row * num_column + j * num_column + k][0].astype('uint8'))
+                merged_image.paste(img, (k * 128, j * 128))
         merged_img_array.append(merged_image)
 
     write_video_path = os.path.join(path, 'processed', str(session_id), filename)
     # if not os.path.isdir(write_video_path):
     #     os.mkdir(write_video_path)
-    out = cv2.VideoWriter(write_video_path, cv2.VideoWriter_fourcc(*'mp4v'), 20, (num_column*128, num_row*128))
+    out = cv2.VideoWriter(write_video_path, cv2.VideoWriter_fourcc(*'mp4v'), 20, (num_column * 128, num_row * 128))
     for i in range(len(merged_img_array)):
         cv_img = cv2.cvtColor(np.array(merged_img_array[i]), cv2.COLOR_RGB2BGR)
         out.write(cv_img)
@@ -142,6 +144,7 @@ def process(session_id: str, filename: str):
     # End
     running[session_id].remove(filename)
 
+
 if __name__ == '__main__':
-    #split_video(0, 'test.mp4')
+    # split_video(0, 'test.mp4')
     process(0, 'test.mp4')
