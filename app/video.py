@@ -5,7 +5,7 @@ import cv2
 import tensorflow as tf
 from PIL import Image
 import numpy as np
-#from uwsgidecorators import thread
+from uwsgidecorators import thread
 from core.train import lr_schedule, HUBER_DELTA
 
 from core.nets import FR_16, DynFilter, OurModel
@@ -62,7 +62,7 @@ def split_video(session_id: str, filename: str):
     cv2.destroyAllWindows()
 
 
-#@thread
+@thread
 def process(session_id: str, filename: str):
     if session_id not in running:
         running[session_id] = []
@@ -106,6 +106,7 @@ def process(session_id: str, filename: str):
                 for l in range(i, i + 7):
                     frame_bunch.append(img_array[l * num_row * num_column + j * num_column + k])
                 input_img_array.append(frame_bunch)
+    input_img_array = np.asarray(input_img_array, dtype=np.float32)
 
     # Run Model
     # model = tf.keras.models.load_model(
