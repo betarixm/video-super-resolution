@@ -3,3 +3,4 @@ numpy~=1.19.5
 Flask~=2.0.1
 Pillow~=8.2.0
 uWSGI~=2.0.19.1
+opencv-python~=4.5.2.54
