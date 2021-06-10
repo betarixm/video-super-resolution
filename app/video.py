@@ -5,14 +5,14 @@ import cv2
 import tensorflow as tf
 from PIL import Image
 import numpy as np
-from uwsgidecorators import thread
+#from uwsgidecorators import thread
 
-from core.nets import FR_16, DynFilter
+from core.nets import FR_16, DynFilter, OurModel
 from core.utils import depth_to_space_3D
 
 running = {}
 path = os.path.abspath(os.getcwd())
-weight_path = os.path.join(path, os.path.pardir, 'FR_16_4_1622865812')
+weight_path = os.path.join(path, os.path.pardir, 'checkpoint', 'FR_16_4.1623154621.001-0.00434')
 
 
 def split_video(session_id: str, filename: str):
@@ -61,7 +61,7 @@ def split_video(session_id: str, filename: str):
     cv2.destroyAllWindows()
 
 
-@thread
+#@thread
 def process(session_id: str, filename: str):
     if session_id not in running:
         running[session_id] = []
@@ -107,16 +107,16 @@ def process(session_id: str, filename: str):
                 input_img_array.append(frame_bunch)
 
     # Run Model
-    # model = OurModel()
-    # model = tf.keras.models.load_model(weight_path)
-    model = tf.keras.models.load_model(
-        weight_path,
-        custom_objects={
-            "FR_16": FR_16,
-            "DynFilter": DynFilter,
-            "depth_to_space_3D": depth_to_space_3D
-        }
-    )
+    # model = tf.keras.models.load_model(
+    #     weight_path,
+    #     custom_objects={
+    #         "FR_16": FR_16,
+    #         "DynFilter": DynFilter,
+    #         "depth_to_space_3D": depth_to_space_3D
+    #     }
+    # )
+    model = OurModel()
+    model.load_weights(weight_path)
     img_array_output = model.predict(input_img_array)
 
     # Merge into video
