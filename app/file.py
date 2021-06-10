@@ -33,7 +33,7 @@ def listing(session_id: str) -> dict:
     return {
         f: [
             "upload",
-            "processing" if f in video.running else None,
+            "processing" if session_id in video.running and f in video.running[session_id] else None,
             "processed" if f in processed else None
         ] for f in uploaded
     }

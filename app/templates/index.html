@@ -1,29 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <script>
-        function req(filename){
-            let xhr = new XMLHttpRequest();
-            xhr.open("POST", "/process/" + filename);
-            xhr.send();
-        }
-    </script>
-
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <button type="submit">Upload</button>
-    </form>
-    <ul>
-        {% for filename, attr in file_list %}
-            <li>
-                {{ filename }}
-                {% if "processing" not in attr and "processed" not in attr %}
-                    <button type="button" onclick="req('{{ filename }}')">Submit</button>
-                {% endif %}
-                {% if "processed" in attr %}
-                    <a href="/download/processed/{{ filename }}">Processed</a>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="wrapper">
+        <h1 class="title">Video Super Resolution</h1>
+        <div class="subtitle">Computer Graphics Project Demo</div>
+        <form class="upload" action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file">
+            <button type="submit">Upload</button>
+        </form>
+        <div class="table">
+            {% for filename, attr in file_list %}
+                <div class="entry">
+                    {% if "processing" not in attr and "processed" not in attr %}
+                        <button type="button" onclick="req('{{ filename }}')">
+                            <span class="material-icons">cloud_upload</span>
+                        </button>
+                    {% elif "processing" in attr %}
+                        <span class="material-icons">sync</span>
+                    {% elif "processed" in attr %}
+                        <a href="/download/processed/{{ filename }}">
+                            <span class="material-icons">done</span>
+                        </a>
+                    {% endif %}
+                    {{ filename }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

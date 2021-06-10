@@ -1,6 +1,6 @@
 import uuid
 
-from flask import session
+from flask import session, copy_current_request_context
 
 
 def auth() -> str:
