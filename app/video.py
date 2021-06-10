@@ -5,6 +5,7 @@ import cv2
 import tensorflow as tf
 from PIL import Image
 import numpy as np
+from uwsgidecorators import thread
 
 from nets import OurModel
 from nets import FR_16, DynFilter
@@ -60,6 +61,7 @@ def split_video(session_id: str, filename: str):
     cv2.destroyAllWindows()
 
 
+@thread
 def process(session_id: str, filename: str):
     if session_id not in running:
         running[session_id] = []

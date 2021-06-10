@@ -4,12 +4,12 @@ import glob
 from flask import request, session
 from werkzeug.utils import secure_filename
 
-from app import app
 import video
+import environ as env
 
 
 def save(session_id: str) -> bool:
-    path_dir = os.path.join(app.config["UPLOAD_FOLDER"], session_id)
+    path_dir = os.path.join(env.UPLOAD_FOLDER, session_id)
 
     if not os.path.exists(path_dir):
         os.mkdir(path_dir)
@@ -27,13 +27,13 @@ def save(session_id: str) -> bool:
 
 
 def listing(session_id: str) -> dict:
-    uploaded = [os.path.basename(f) for f in glob.glob(f"{app.config['UPLOAD_FOLDER']}/{session_id}/*")]
-    processed = [os.path.basename(f) for f in glob.glob(f"{app.config['PROCESSED_FOLDER']}/{session_id}/*")]
+    uploaded = [os.path.basename(f) for f in glob.glob(f"{env.UPLOAD_FOLDER}/{session_id}/*")]
+    processed = [os.path.basename(f) for f in glob.glob(f"{env.PROCESSED_FOLDER}/{session_id}/*")]
 
     return {
         f: [
             "upload",
-            "processing" if f in video.running else None,
+            "processing" if session_id in video.running and f in video.running[session_id] else None,
             "processed" if f in processed else None
         ] for f in uploaded
     }
