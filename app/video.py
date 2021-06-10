@@ -7,9 +7,8 @@ from PIL import Image
 import numpy as np
 from uwsgidecorators import thread
 
-from nets import OurModel
-from nets import FR_16, DynFilter
-from utils import depth_to_space_3D
+from ..core.nets import OurModel, FR_16, DynFilter
+from ..core.utils import depth_to_space_3D
 
 running = {}
 path = os.path.abspath(os.getcwd())
