@@ -14,6 +14,7 @@ app = Flask(__name__)
 app.secret_key = "SAFE_SECRET_KEY_HERE"
 app.config["UPLOAD_FOLDER"] = env.UPLOAD_FOLDER
 app.config["PROCESSED_FOLDER"] = env.PROCESSED_FOLDER
+app.config["PROCESSING_FOLDER"] = env.PROCESSING_FOLDER
 
 
 @app.route("/", methods=["GET"])
@@ -57,4 +58,8 @@ def status(filename: str):
 
 
 if __name__ == "__main__":
+    for d in [env.UPLOAD_FOLDER, env.PROCESSING_FOLDER, env.PROCESSED_FOLDER]:
+        if not os.path.exists(d):
+            os.mkdir(d)
+
     app.run(debug=True)
