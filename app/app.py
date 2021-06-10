@@ -20,7 +20,7 @@ app.config["PROCESSING_FOLDER"] = env.PROCESSING_FOLDER
 @app.route("/", methods=["GET"])
 def index():
     session_id = session_m.auth()
-    return render_template("index.html", file_list=file_m.listing(session_id).items())
+    return render_template("index.html", file_list=file_m.listing(session_id).items(), r=video.running)
 
 
 @app.route("/upload", methods=["POST"])

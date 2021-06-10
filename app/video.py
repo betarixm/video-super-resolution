@@ -1,4 +1,5 @@
 import time
+from uwsgidecorators import thread
 
 running = {}
 
@@ -14,6 +15,7 @@ def split_video(session_id: str, filename: str):
     """
 
 
+@thread
 def process(session_id: str, filename: str):
     if session_id not in running:
         running[session_id] = []
