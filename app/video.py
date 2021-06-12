@@ -7,6 +7,7 @@ from PIL import Image
 import numpy as np
 from uwsgidecorators import thread
 
+from app.environ import UPLOAD_FOLDER, PROCESSED_FOLDER, PROCESSING_FOLDER
 from core.nets import OurModel
 from core.environ import lr_schedule, HUBER_DELTA
 
@@ -27,10 +28,13 @@ def split_video(session_id: str, filename: str):
     Warning: if the total number of frame exceeds 10,000 then the order of frames can be strange!!
     """
 
-    input_video_path = os.path.join('uploads', str(session_id), filename)
-    write_frame_dir_path = os.path.join('processing', str(session_id), filename)
-    if not os.path.exists("processing"):
-        os.mkdir("processing")
+    input_video_path = os.path.join(UPLOAD_FOLDER, str(session_id), filename)
+    write_frame_dir_path = os.path.join(PROCESSING_FOLDER, str(session_id), filename)
+    if not os.path.exists(PROCESSING_FOLDER):
+        os.mkdir(PROCESSING_FOLDER)
+
+    if not os.path.exists(f"{PROCESSING_FOLDER}/{session_id}"):
+        os.mkdir(f"{PROCESSING_FOLDER}/{session_id}")
 
     if not os.path.exists(write_frame_dir_path):
         os.mkdir(write_frame_dir_path)
@@ -77,9 +81,10 @@ def process(session_id: str, filename: str):
     Using result of split_video, run tensorflow model.
     Merge and save these result into "processed/{session_id}/{filename}"
     """
+    split_video(session_id, filename)
 
     # Load Frames into img_array
-    input_frame_path = os.path.join(path, 'processing', str(session_id), filename)
+    input_frame_path = os.path.join(PROCESSING_FOLDER, str(session_id), filename)
     img_array = []
     input_frame_path_array = glob.glob(input_frame_path + '/*')
     input_frame_path_array.sort()
@@ -139,7 +144,7 @@ def process(session_id: str, filename: str):
                 merged_image.paste(img, (k * 128, j * 128))
         merged_img_array.append(merged_image)
 
-    write_video_path = os.path.join(path, 'processed', str(session_id), filename)
+    write_video_path = os.path.join(PROCESSED_FOLDER, str(session_id), filename)
     # if not os.path.isdir(write_video_path):
     #     os.mkdir(write_video_path)
     out = cv2.VideoWriter(write_video_path, cv2.VideoWriter_fourcc(*'mp4v'), 20, (num_column * 128, num_row * 128))
