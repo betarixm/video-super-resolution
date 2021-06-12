@@ -13,7 +13,7 @@ from core.environ import lr_schedule, HUBER_DELTA
 
 running = {}
 
-weight_path = os.path.join('checkpoint', 'FR_16_4.1622873040.017-0.00526')
+weight_path = os.path.join('checkpoint', 'FR_16_4.1622873040.034-0.00526')
 
 
 def split_video(session_id: str, filename: str):
@@ -150,7 +150,6 @@ def process(session_id: str, filename: str):
 
     out = cv2.VideoWriter(write_video_path, cv2.VideoWriter_fourcc(*'mp4v'), 20, (num_column * 128, num_row * 128))
     for i in range(len(merged_img_array)):
-        cv_img = cv2.cvtColor(np.array(merged_img_array[i]), cv2.COLOR_RGB2BGR)
-        out.write(cv_img)
+        out.write(np.array(merged_img_array[i]))
     out.release()
     running[session_id].remove(filename)
