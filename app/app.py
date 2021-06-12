@@ -1,7 +1,7 @@
 import glob
 import os.path
 
-from flask import Flask, render_template, redirect, send_file
+from flask import Flask, render_template, redirect, send_from_directory
 from werkzeug.utils import secure_filename
 
 import app.environ as env
@@ -30,12 +30,15 @@ def upload():
     return redirect("/")
 
 
-@app.route("/download/<category>/<filename>", methods=["GET"])
+@app.route("/download/<category>/<filename>", methods=["GET", "POST"])
 def download(category, filename):
     session_id = session_m.auth()
-    return send_file(
-        os.path.join(".", secure_filename(category), session_id, secure_filename(filename)),
-        as_attachment=False
+    return send_from_directory(
+        os.path.join(".", secure_filename(category), session_id),
+        path=secure_filename(filename),
+        as_attachment=True,
+        mimetype="video/mp4",
+        filename=secure_filename(filename)
     )
 
 
