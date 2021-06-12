@@ -6,3 +6,12 @@ services:
     restart: always
     ports:
       - "8080:8080"
+    volumes:
+      - uploads:/src/app/uploads
+      - processed:/src/app/processed
+      - processing:/src/app/processing
+
+volumes:
+  uploads:
+  processed:
+  processing:
