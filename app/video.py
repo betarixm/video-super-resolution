@@ -127,10 +127,8 @@ def process(session_id: str, filename: str):
         optimizer=tf.keras.optimizers.Adam(learning_rate=lr_schedule),
         loss=tf.keras.losses.Huber(delta=HUBER_DELTA)
     )
-    print(weight_path)
     model.load_weights(weight_path)
     img_array_output = model.predict(input_img_array)
-
     # Merge into video
     merged_img_array = []
     for i in range(num_frame - 6):
@@ -155,7 +153,4 @@ def process(session_id: str, filename: str):
         cv_img = cv2.cvtColor(np.array(merged_img_array[i]), cv2.COLOR_RGB2BGR)
         out.write(cv_img)
     out.release()
-    # Start
-    time.sleep(10)
-    # End
     running[session_id].remove(filename)
