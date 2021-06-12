@@ -62,55 +62,56 @@ dynamic upsampling filter만을 적용시킨 결과는 sharpness에서 lack을 �
 ![](https://i.imgur.com/DVvy3X8.png)
 
 
-## Potential difficulties
-### Time Limitation
-본 project의 proposal submit이 끝난 후 중간 발표까지는 총 2주이며 그 이후는 시험기간이라 오롯이 프로젝트에  2주의 추가 기간을 더 할애하기 어렵다. Deep-learning 의 특성상 학습에 오랜 시간이 소요되는데 학과 공용 클러스터 서버 특성상 리소스 사용량이 제한되어 있고 용량이 큰 video data를 사용하므로 제한된 짧은 시간 안에 원하는 결과를 얻지 못할 수도 있다는 잠재적 한계가 존재한다.
-
-### 해상도의 비규격화
- 우리는 이 프로젝트에서 입력되는 영상의 크기가 무엇이든지 상관없이 해상도를 정수배 향상시키는 것을 목적으로 하고 있다. 입력 영상의 크기에 제한을 두지 않았다는 점에서 프로젝트가 조금 더 challenging 할 것으로 예상된다.
-
-
 # Implementation
-## Dataset crawaler
+## Dataset 
+### crawling
+저작권 문제가 없는 동영상 수집을 위해 “pixabay”에서 “상업적 용도로 사용 가능 / 출처 안 밝혀도 됨” 표시가 되어 있는 video 중에서  motion이 dynamic한 영상들로 수집하였다. 
+Pixabay python module을 사용하여 자동 crawling을 했으며, "Walking", "Animal", "Exercise", "Transport" 등의 keyword로 dynamic한 motion이 포함되어 있고, 길이가 8~15sec 이내의 video 들로만 crawling 하였다.
+
+### convert to Frame
+opencv library를 사용하여 총 670개의 video,  대략 320,000 개의 frame image를 추출하였습니다. Ground truth는 frame image 중 모션이 가장 잘 나타난다고 추정할 수 있는 중앙 부분의 128x128 크롭된 image를 사용하였고, LR input은 32x32 frame image를 사용하였습니다.
+
 ## Network architecture
+
+## Training
+제작한 dataset과 Network를 사용하여 Training 을 진행하였다. 컴공과 클러스터 서버의 TitanXP GPU를 사용하였고, job 1개에 100 Epoch, Batch size 16, GPU2개로 학습하였다. 클러스터 서버의 최대 job processing 시간이 24시간으로 제한되어 있어서 100Epoch로 제한하고 여러번 train하였다.
+학습에 사용한 hyperparameter는 다음과 같으며 조금씩 변경하며 validation loss를 줄이는 방향으로 학습을 진행하였다. 
+```
+    (1) Initial LR     
+    (2) First decay step
+    (3) Training set    
+    (4) Huber delta    
+```
+    
+
 ## Web Application
 
 
-# Environment
-- PyTorch
-- OpenCV
-- FFmpeg
-- Flask
-
-# Milestones
-### Proposal
-- `5/11` Proposal draft submission
-- `5/13` Proposal feedback
-- `5/14` Proposal Meeting
-- `5/15` Proposal submission
-### Dataset
-- `5/17 - 5/18` Data crawling & manufacturing
-### Backend Implementation
-- `5/16` Paper review & Design meeting
-- `5/19 - 5/26` Primary learning
-- `5/29 - 6/2` Secondary learning
 
 
 
-### Web Service Implementation
-- `5/29 - 5/30` Web service implemenation
 
-### Finalization
-- `6/11` Final presentation
+# Result
+## Hyperparameter
+최종적으로 validation loss = 0.00435, hyperparameter는 다음과 같다.
+```
+INIT_LR = 0.005
+FIRST_DECAY_STEPS = 70
+TRAIN_DATASET_RATIO = 0.9
+HUBER_DELTA= 200.0
+```
+
+## upscaling 
 
 
-# Members
-- 도승욱
-    - 딥러닝 아키텍처 디자인
-    - 신경망 구현
-- 최은수
-    - 딥러닝 아키텍처 디자인
-    - Dataset 구성
-- 권민재
-    - 딥러닝 아키텍처 디자인
-    - 웹 서비스 구현
+
+# Discussion
+[각자 하나씩은 쓰자]
+### Motion Area identification
+논문에서는 dataset을 제작할 때, video frame을 그대로 사용하지 않고 "motion이 충분히 보이는 area" 를 crop하여 일부분만 사용하였다. 비슷하게 motion이 충분한 area를 crop하여 dataset을 제작하고자 하였으나 300개가 넘는 video를 일일이 확인하여 crop 위치를 결정하는 것은 무리가 있었다. 그래서 대체적으로 frame의 중심(가운데) 에 Object의 motion이 활발하게 보인다고 가정하고 중심부분을 crop하여 제작하였다. 그렇게 하다 보니 video에 따라서는 motion이 충분하지 않아 training에 도움이 되지 못하는 data들도 있었다. 논문에서는 300개의 video로 충분한 결과를 도출하였지만, 본 project에서는 dataset이 더 필요하게 되었고 추가적으로 300개의 video를 더 crawling해서 최종 dataset을 제작하였다. 이러한 Motion area를 identify할 수 있는 방법에 대해 좀 더 고민해 본다면 적은 dataset으로도 더 좋은 성능을 낼 수 있을 것이다. 
+
+
+
+
+
+
