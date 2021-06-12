@@ -18,7 +18,7 @@ h1 {
     font-size: 3.5em;
 }
 
-button {
+.entry > button {
     background: none;
     border: none;
 }
@@ -51,8 +51,4 @@ button {
     background-color: #ffffff;
     margin: 15px;
     align-items: center;
-}
-
-.upload > button {
-    background-color: red;
 }
