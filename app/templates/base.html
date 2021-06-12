@@ -4,13 +4,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
               rel="stylesheet">
-        <script>
-            function req(filename){
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", "/process/" + filename);
-                xhr.send();
-            }
-        </script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     </head>
     <body>
         {% block content %}{% endblock %}

@@ -8,23 +8,12 @@
             <input type="file" name="file">
             <button type="submit">Upload</button>
         </form>
-        <div class="table">
-            {% for filename, attr in file_list %}
-                <div class="entry">
-                    {% if "processing" not in attr and "processed" not in attr %}
-                        <button type="button" onclick="req('{{ filename }}')">
-                            <span class="material-icons">cloud_upload</span>
-                        </button>
-                    {% elif "processing" in attr %}
-                        <span class="material-icons">sync</span>
-                    {% elif "processed" in attr %}
-                        <a href="/download/processed/{{ filename }}">
-                            <span class="material-icons">done</span>
-                        </a>
-                    {% endif %}
-                    {{ filename }}
-                </div>
-            {% endfor %}
+        <div id="table" class="table">
+            Loading
         </div>
     </div>
+
+    <script>
+        status(true);
+    </script>
 {% endblock %}
