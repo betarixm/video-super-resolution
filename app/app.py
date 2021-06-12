@@ -4,10 +4,10 @@ import os.path
 from flask import Flask, render_template, redirect, send_file
 from werkzeug.utils import secure_filename
 
-import environ as env
-import session as session_m
-import file as file_m
-import video
+import app.environ as env
+import app.session as session_m
+import app.file as file_m
+import app.video as video
 
 
 app = Flask(__name__)

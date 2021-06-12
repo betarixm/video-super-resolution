@@ -1,17 +1,6 @@
-import time
-
-import tensorflow as tf
-
 from core.dataset import load_data
 from core.nets import OurModel
-
-EPOCHS = 128
-BATCH_SIZE = 16
-INIT_LR = 0.01
-FIRST_DECAY_STEPS = 50
-TRAIN_DATASET_RATIO = 0.9
-HUBER_DELTA = 200.0
-ID = str(int(time.time()))
+from core.environ import *
 
 checkpoint_path = "checkpoint/FR_16_4." + ID + ".{epoch:03d}-{val_loss:.5f}"
 checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
@@ -19,11 +8,6 @@ checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     save_weights_only=True,
     save_best_only=True,
     verbose=1
-)
-
-lr_schedule = tf.keras.optimizers.schedules.CosineDecayRestarts(
-    initial_learning_rate=INIT_LR,
-    first_decay_steps=FIRST_DECAY_STEPS
 )
 
 

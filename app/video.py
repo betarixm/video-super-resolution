@@ -6,10 +6,9 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 from uwsgidecorators import thread
-from core.train import lr_schedule, HUBER_DELTA
 
-from core.nets import FR_16, DynFilter, OurModel
-from core.utils import depth_to_space_3D
+from core.nets import OurModel
+from core.environ import lr_schedule, HUBER_DELTA
 
 running = {}
 path = os.path.abspath(os.getcwd())
@@ -149,8 +148,3 @@ def process(session_id: str, filename: str):
     time.sleep(10)
     # End
     running[session_id].remove(filename)
-
-
-if __name__ == '__main__':
-    #split_video(0, 'test.mp4')
-    process(0, 'test.mp4')

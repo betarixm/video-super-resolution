@@ -4,8 +4,8 @@ import glob
 from flask import request, session
 from werkzeug.utils import secure_filename
 
-import video
-import environ as env
+import app.environ as env
+import app.video as video
 
 
 def save(session_id: str) -> bool:
