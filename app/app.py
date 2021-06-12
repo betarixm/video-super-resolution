@@ -49,8 +49,14 @@ def process(filename: str):
     return redirect("/")
 
 
+@app.route("/status/", methods=["GET", "POST"])
+def status():
+    session_id = session_m.auth()
+    return file_m.listing(session_id)
+
+
 @app.route("/status/<filename>", methods=["GET", "POST"])
-def status(filename: str):
+def status_per_file(filename: str):
     session_id = session_m.auth()
 
     if filename in video.running:
