@@ -143,8 +143,13 @@ def process(session_id: str, filename: str):
         merged_img_array.append(merged_image)
 
     write_video_path = os.path.join(PROCESSED_FOLDER, str(session_id), filename)
-    # if not os.path.isdir(write_video_path):
-    #     os.mkdir(write_video_path)
+
+    if not os.path.exists(PROCESSED_FOLDER):
+        os.mkdir(PROCESSED_FOLDER)
+
+    if not os.path.exists(f"{PROCESSED_FOLDER}/{session_id}"):
+        os.mkdir(f"{PROCESSED_FOLDER}/{session_id}")
+
     out = cv2.VideoWriter(write_video_path, cv2.VideoWriter_fourcc(*'mp4v'), 20, (num_column * 128, num_row * 128))
     for i in range(len(merged_img_array)):
         cv_img = cv2.cvtColor(np.array(merged_img_array[i]), cv2.COLOR_RGB2BGR)
