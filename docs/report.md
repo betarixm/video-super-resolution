@@ -78,23 +78,16 @@ Tensorflow 2.0의 high level framework인 keras를 이용해 Network를 구성�
 
 
 # Result
-Note. report에 video 를 담기는 어려워 Frame으로 비교할 것이며 upscaling한 video는 함께 제출하였다.
-
 |Input (256 x 256)|Output(1024 x 1024)|
 |:--:|:--:|
 |![](https://i.imgur.com/TtszlkW.png)|![](https://i.imgur.com/8MqJHqq.png)|
-
-256x256 video의 Frame이 1024x1024 x16 upscaling되는 것을 확인할 수 있다.
 
 |Input|Output|
 |:--:|:--:|
 |![](https://i.imgur.com/uyzxh4S.png)|![](https://i.imgur.com/lCBx5Gh.png)|
 |![](https://i.imgur.com/5qowGbs.png)|![](https://i.imgur.com/BOwyxiC.png) |
 
-Input video와 output video의 frame 일부를 crop하여 비교해 보면 output에서 화질이 개선된 것을 가시적으로 확인할 수 있다.
-
-
-최종적으로 validation loss = 0.00435, hyperparameter는 다음과 같다.
+첫번째 표를 통해 해상도가 256x256인 video의 frame이 1024x1024 x16 upscaling되는 것을 확인할 수 있다. Input video와 output video의 frame 일부를 crop하여 비교해 보면 output에서 화질이 개선된 것을 가시적으로 확인할 수 있다. 학습이 완료되었을 때 최종 validation set에 대한 loss는 0.00435 이었으며, hyperparameter는 다음과 같다.
 
 - Cosine Decay
     - Initial Learning Rate: 0.005
@@ -114,7 +107,7 @@ Input video와 output video의 frame 일부를 crop하여 비교해 보면 outpu
 10초의 240p 동영상을 4배로 upscailing하는데 약 6분의 시간이 소요된다. 동영상을 시청하는 대중소비자들에게 있어 직접 본 작업을 수행하도록 것은 매력적이지 않다. 따라서 현재의 기술로는 컨텐츠 공급자가 본인의 video를 upsaciling 작업한 후 이를 대중에게 제공하도록 하는 것이 합리적인 buisiness plan으로 보인다.
 video super resolution의 속도를 높이기 위해 다음의 방법을 논의하였다.
 
-본 논문에서 Video super resolution을 수행하기 위해 Data augementation이 활용된다. 7개의 frame을 input하여 temporal consistency를 이용하는 방법인데, 이 경우 100 frame의 길이를 가진 video를 upscailing하기 위해 약 700개의 frame에 대한 computation이 필요하다. 계산되어야할 총 프레임 수를 줄이기 위해, 100개의 frame 중 Keyframe을 정하여 해당 프레임은 7개의 frame을 data augmentation을 활용한다. 나머지 frame들은 더 적은 수의 frame을 data augmentation을 활용하되, Keyframe들의 interpolation으로부터 residual을 계산해 더해줌으로써 부족할 수 있는 data augmentation을 보충해준다. 이를 통해 계산량을 줄이고 이로 인해 발생할 품질 저하를 줄일 수 있기를 기대한다.  
+본 논문에서 Video super resolution을 수행하기 위해 "Data augementation"이 활용된다. 7개의 frame을 input하여 temporal consistency를 이용하는 방법인데, 이 경우 100 frame의 길이를 가진 video를 upscailing하기 위해 약 700개의 frame에 대한 computation이 필요하다. 계산되어야할 총 프레임 수를 줄이기 위해, 100개의 frame 중 keyframe을 정하여 해당 프레임은 7개의 frame을 data augmentation을 활용한다. 나머지 frame들은 더 적은 수의 frame을 data augmentation을 활용하되, keyframe들의 interpolation으로부터 residual을 계산해 더해줌으로써 부족할 수 있는 data augmentation을 보충해준다. 이를 통해 계산량을 줄이고 이로 인해 발생할 품질 저하를 줄일 수 있기를 기대한다.  
 
 ## Category Specific Training
 애니메이션, 자연 풍경, 건축물 등 여러 종류의 video가 존재하고 각 종류별 비디오가 나타내는 텍스쳐와 움직임은 상이하다. Category별로 비디오를 분류하여 dataset을 준비하여 category별로 training을 하였을 때, 성능이 향상하는지를 확인하고 싶다. 만약 유의미한 성능향상이 이루어진다면 사용자가 향상시키고자 하는 비디오의 종류에 맞추어 더 좋은 품질의 video super resolution을 제공할 수 있을 것이라고 생각한다.
