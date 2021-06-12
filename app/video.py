@@ -11,8 +11,8 @@ from core.nets import OurModel
 from core.environ import lr_schedule, HUBER_DELTA
 
 running = {}
-path = os.path.abspath(os.getcwd())
-weight_path = os.path.join(path, os.path.pardir, 'checkpoint', 'FR_16_4.1623154621.001-0.00434')
+
+weight_path = os.path.join('checkpoint', 'FR_16_4.1623154621.001-0.00434')
 
 
 def split_video(session_id: str, filename: str):
@@ -27,9 +27,12 @@ def split_video(session_id: str, filename: str):
     Warning: if the total number of frame exceeds 10,000 then the order of frames can be strange!!
     """
 
-    input_video_path = os.path.join(path, 'uploads', str(session_id), filename)
-    write_frame_dir_path = os.path.join(path, 'processing', str(session_id), filename)
-    if not os.path.isdir(write_frame_dir_path):
+    input_video_path = os.path.join('uploads', str(session_id), filename)
+    write_frame_dir_path = os.path.join('processing', str(session_id), filename)
+    if not os.path.exists("processing"):
+        os.mkdir("processing")
+
+    if not os.path.exists(write_frame_dir_path):
         os.mkdir(write_frame_dir_path)
 
     cap = cv2.VideoCapture(input_video_path)
