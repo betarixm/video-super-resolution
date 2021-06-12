@@ -11,4 +11,4 @@ RUN pip install -r requirements.txt
 
 WORKDIR /src/app
 
-CMD ["uswgi", "uwsgi.ini"]
+CMD ["uwsgi", "uwsgi.ini"]
