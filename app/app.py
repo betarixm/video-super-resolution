@@ -33,7 +33,10 @@ def upload():
 @app.route("/download/<category>/<filename>", methods=["GET"])
 def download(category, filename):
     session_id = session_m.auth()
-    return send_file(os.path.join(".", secure_filename(category), session_id, secure_filename(filename)))
+    return send_file(
+        os.path.join(".", secure_filename(category), session_id, secure_filename(filename)),
+        as_attachment=False
+    )
 
 
 @app.route("/process/<filename>", methods=["POST"])
