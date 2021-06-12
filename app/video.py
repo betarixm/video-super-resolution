@@ -88,8 +88,6 @@ def process(session_id: str, filename: str):
     img_array = []
     input_frame_path_array = glob.glob(input_frame_path + '/*')
     input_frame_path_array.sort()
-    input_frame_path_array = input_frame_path_array[:10]
-    input_frame_path_array = input_frame_path_array
     for frame_path in input_frame_path_array:
         num_frame = len(input_frame_path_array)
         input_row_path_array = glob.glob(frame_path + '/*')
