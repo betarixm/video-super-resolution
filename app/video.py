@@ -13,7 +13,7 @@ from core.environ import lr_schedule, HUBER_DELTA
 
 running = {}
 
-weight_path = os.path.join('checkpoint', 'FR_16_4.1623154621.001-0.00434')
+weight_path = os.path.join('checkpoint', 'FR_16_4.1622873040.017-0.00526')
 
 
 def split_video(session_id: str, filename: str):
