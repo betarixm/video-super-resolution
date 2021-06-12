@@ -74,4 +74,4 @@ if __name__ == "__main__":
         if not os.path.exists(d):
             os.mkdir(d)
 
-    app.run(debug=True)
+    app.run(debug=False)
