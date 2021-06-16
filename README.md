@@ -1,6 +1,7 @@
 Video Super Resolution
 ===
-[![CSE@POSTECH](https://img.shields.io/badge/CSED451-POSTECH-c80150)](https://www.postech.ac.kr)
+[![CSED451@POSTECH](https://img.shields.io/badge/CSED451-POSTECH-c80150)](https://www.postech.ac.kr)
+[![CSED451@POSTECH](https://img.shields.io/badge/Spring-2021-775E64)](https://www.postech.ac.kr/eng)
 
 # Introduction
 This is a reimplementation of ["Deep Video Super-Resolution Network Using Dynamic Upsampling Filters Without Explicit Motion Compensation."](https://github.com/yhjo09/VSR-DUF)
